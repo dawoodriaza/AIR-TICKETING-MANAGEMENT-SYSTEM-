@@ -13,7 +13,7 @@
   | POST   | `/api/airports/{originAirportId}/flights`            | Create flight                      | PRIVATE |
   | PUT    | `/api/flights/{flightId}`                            | Update flight                      | PRIVATE |
   | PUT    | `/api/airports/{originAirportId}/flights/{flightId}` | Update flight                      | PRIVATE |
-  | DELETE | `/api/flights/{flightId}                             | Delete flight                      | PRIVATE |
+  | DELETE | `/api/flights/{flightId}`                             | Delete flight                      | PRIVATE |
   | GET    | `/api/airports/{airportId}/departures`               | Retrieve List of departing flights | PUBLIC  |
   | GET    | `/api/airports/{airportId}/arrivals`                 | Retrieve List of arriving flights  | PUBLIC  |
 ---
