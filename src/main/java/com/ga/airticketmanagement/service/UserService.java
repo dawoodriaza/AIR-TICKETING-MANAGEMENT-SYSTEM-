@@ -19,7 +19,7 @@ public class UserService {
     }
     public User createUser( User userObject){
         System.out.println("Calling createUser from the Service ==>");
-        if (!userRepository.existsByEmailAddress(userObject.getEmail())){
+        if (!userRepository.existsByEmailAddress(userObject.getEmailAddress())){
             return userRepository.save(userObject);
         }else {
               throw  new ResponseStatusException(HttpStatus.CONFLICT,"User with email address already exists");
