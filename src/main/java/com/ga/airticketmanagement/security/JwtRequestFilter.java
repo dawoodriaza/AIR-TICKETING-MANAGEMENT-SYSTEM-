@@ -19,15 +19,11 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
-  private MyUserDetailsService myUserDetailsService;
+    private MyUserDetailsService myUserDetailsService;
 
     @Autowired
     private JWTUtils jwtUtils;
 
-
-    public void setMyUserDetailsService(MyUserDetailsService myUserDetailsService) {
-        this.myUserDetailsService = myUserDetailsService;
-    }
     private String parseJwt(HttpServletRequest request){
         String headerAuth = request.getHeader("Authorization");
         if(StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")){
@@ -36,13 +32,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         return null;
 
     }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse respone , FilterChain filterChain)throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response , FilterChain filterChain)
+            throws ServletException, IOException {
         try{
             String jwt = parseJwt(request);
             System.out.println("Jwt ==> " + jwt);
             if(jwt !=null && jwtUtils.validateJwtToken(jwt)){
-                String username = jwtUtils.getUserNameFromToken(jwt);
+                String username = jwtUtils.getUserNameFromJwtToken(jwt);
                 System.out.println("username ==> " +username);
                 UserDetails userDetails = this.myUserDetailsService.loadUserByUsername(username);
                 System.out.println("userDetails ==>" + userDetails);
@@ -55,6 +53,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
         }
+        filterChain.doFilter(request, response);
     }
 
 

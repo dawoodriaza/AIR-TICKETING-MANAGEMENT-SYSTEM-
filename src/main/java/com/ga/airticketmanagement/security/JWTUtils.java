@@ -18,14 +18,14 @@ public class JWTUtils {
     private int jwtExpirationMs;
     public String generateJwtToken(MyUserDetails myUserDetails){
         return Jwts.builder()
-                .setSubject(myUserDetails.getUsername())
+                .setSubject((myUserDetails.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
 
     }
-    public String getUserNameFromToken(String token){
+    public String getUserNameFromJwtToken(String token){
         return  Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody().getSubject();
     }
     public boolean validateJwtToken(String authToken){
