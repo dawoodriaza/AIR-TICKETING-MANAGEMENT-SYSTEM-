@@ -1,8 +1,10 @@
 package com.ga.airticketmanagement.controller;
 
 import com.ga.airticketmanagement.model.User;
+import com.ga.airticketmanagement.model.request.LoginRequest;
 import com.ga.airticketmanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +26,11 @@ public class UserController {
         return userService.createUser(userObject);
     }
 
-//    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
-//        System.out.println("Calling LoginUser from the controller ==>");
-//        return userService.loginUser(loginRequest);
-//
-//    }
+    @PostMapping(path = "/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+        System.out.println("Calling LoginUser from the controller ==>");
+        return userService.loginUser(loginRequest);
+
+    }
 
 }

@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-@ToString(exclude = {"password"})
+@ToString(exclude = {"password","userProfile"})
 public class User {
     @Id
     @Column
