@@ -4,7 +4,6 @@ package com.ga.airticketmanagement.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 
@@ -17,16 +16,22 @@ import java.time.LocalDateTime;
 @ToString
 public class Booking {
 
-
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+
+    @Column
+    private String name;
+
+
+    @Column
+    private int numberOfPassengers;
 
     @Column(updatable = false)
     @CreationTimestamp
@@ -36,9 +41,8 @@ public class Booking {
     @Column
     private float total_price;
 
+
     @Column
     private String status;
-
-
 
 }
