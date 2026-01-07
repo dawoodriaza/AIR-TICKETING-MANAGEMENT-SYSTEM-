@@ -18,7 +18,7 @@ public class AccountEmailService {
     public void sendVerificationEmail(User user, String token) {
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
-                "Verify your email",
+                "Verify Your Email",
                 "Please verify your email address to gain access to your account." +
                         "<br><br><a href=\""+baseUrl+"/auth/users/verify?token="+ token +"\">Verify Email</a>"
         );
