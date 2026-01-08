@@ -1,8 +1,11 @@
 package com.ga.airticketmanagement.service;
 
 import com.ga.airticketmanagement.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class AccountEmailService {
@@ -11,16 +14,26 @@ public class AccountEmailService {
     private String baseUrl;
     private final EmailService emailService;
 
+    @Autowired
+    private SpringTemplateEngine templateEngine;
     public AccountEmailService(EmailService emailService) {
         this.emailService = emailService;
     }
 
     public void sendVerificationEmail(User user, String token) {
+        System.out.println("Sending verification email...");
+        String body = buildEmail(baseUrl + "/auth/users/verify?token=" + token, "email/verification");
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
                 "Verify Your Email",
-                "Please verify your email address to gain access to your account." +
-                        "<br><br><a href=\""+baseUrl+"/auth/users/verify?token="+ token +"\">Verify Email</a>"
+                body
         );
     }
+
+    private String buildEmail(String link, String templatePath) {
+        Context context = new Context();
+        context.setVariable("link", link);
+        return templateEngine.process(templatePath, context);
+    }
+
 }
