@@ -40,4 +40,11 @@ public class UserController {
         userService.verifyUser(token);
         return ResponseEntity.ok("Account verified");
     }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(@RequestBody String email) {
+
+        userService.resendVerification(email);
+        return ResponseEntity.ok("If you are registered, the verification email has been sent.");
+    }
 }
