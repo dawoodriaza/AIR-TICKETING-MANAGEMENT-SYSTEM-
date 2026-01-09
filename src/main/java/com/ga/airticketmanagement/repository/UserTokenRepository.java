@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface UserTokenRepository extends JpaRepository<UserToken,Long> {
     Optional<UserToken> findByTokenAndType(String token, TokenType type);
+    Optional<UserToken> findByEmailAndType(String email, TokenType type);
+    Optional<UserToken> findFirstByEmailAndTypeOrderByCreatedAtDesc(String email, TokenType type);
 }
