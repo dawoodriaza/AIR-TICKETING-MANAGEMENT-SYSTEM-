@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +20,8 @@ public class JWTUtils {
     private int jwtExpirationMs;
     public String generateJwtToken(MyUserDetails myUserDetails){
         return Jwts.builder()
-                .setSubject((myUserDetails.getUsername()))
+                .setSubject(myUserDetails.getUsername())
+                .addClaims(Map.of("role", myUserDetails.getUser().getRole()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)

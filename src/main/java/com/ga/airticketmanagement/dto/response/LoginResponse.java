@@ -1,4 +1,4 @@
-package com.ga.airticketmanagement.model.response;
+package com.ga.airticketmanagement.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

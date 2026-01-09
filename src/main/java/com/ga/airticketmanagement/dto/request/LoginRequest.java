@@ -1,4 +1,4 @@
-package com.ga.airticketmanagement.model.request;
+package com.ga.airticketmanagement.dto.request;
 
 import lombok.Getter;
 

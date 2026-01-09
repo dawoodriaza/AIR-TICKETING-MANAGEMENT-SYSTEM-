@@ -1,6 +1,8 @@
 package com.ga.airticketmanagement.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -22,11 +24,16 @@ public class User {
     private String emailAddress;
 
     @Column
-   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column
-    private Boolean isEmailVerified;
+    @Column(name = "is_active", nullable = false)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    private boolean active = true;
+
+    @Column(nullable = false)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    private boolean emailVerified = false;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -38,7 +45,6 @@ public class User {
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private UserProfile userProfile;
 
-
     @JsonIgnore
     public String getPassword() {
         return password;
@@ -46,6 +52,8 @@ public class User {
 
     @PrePersist
     public void prePersist(){
-        this.isEmailVerified= false;
+        this.emailVerified = false;
+        this.active = true;
+        this.role = Role.CUSTOMER;
     }
 }

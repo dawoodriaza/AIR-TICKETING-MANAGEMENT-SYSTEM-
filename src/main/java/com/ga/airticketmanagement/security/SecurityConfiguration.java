@@ -42,6 +42,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/users",
+                                "/auth/users/verify",
+                                "/auth/users/resend-verification",
                                 "/auth/users/login",
                                 "/auth/users/register"
                         ).permitAll()
