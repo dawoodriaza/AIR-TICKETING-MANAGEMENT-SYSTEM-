@@ -1,5 +1,7 @@
 package com.ga.airticketmanagement.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +16,15 @@ import java.time.LocalDateTime;
 @Setter
 public class CreateFlightByOriginAirportRequest {
 
+    @NotBlank
     private Long destinationAirportId;
-    private LocalDateTime departureTime;
-    private LocalDateTime arrivalTime;
-    private BigDecimal price;
 
+    @NotBlank
+    private LocalDateTime departureTime;
+
+    @NotBlank
+    private LocalDateTime arrivalTime;
+
+    @NotBlank
+    private BigDecimal price;
 }
