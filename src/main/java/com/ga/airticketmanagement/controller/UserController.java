@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/auth/users")
@@ -34,17 +33,4 @@ public class UserController {
 
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<?> verifyUser(@RequestParam String token) {
-
-        userService.verifyUser(token);
-        return ResponseEntity.ok("Account verified");
-    }
-
-    @PostMapping("/resend-verification")
-    public ResponseEntity<?> resendVerification(@RequestBody String email) {
-
-        userService.resendVerification(email);
-        return ResponseEntity.ok("If you are registered, the verification email has been sent.");
-    }
 }
