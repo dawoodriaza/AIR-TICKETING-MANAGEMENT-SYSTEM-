@@ -1,4 +1,4 @@
-package com.ga.airticketmanagement.exceptions;
+package com.ga.airticketmanagement.exception;
 
 public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException() {

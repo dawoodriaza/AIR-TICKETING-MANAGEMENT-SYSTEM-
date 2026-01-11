@@ -1,7 +1,4 @@
-package com.ga.airticketmanagement.exceptions;
-
-import org.springframework.http.HttpStatusCode;
-import org.springframework.web.server.ResponseStatusException;
+package com.ga.airticketmanagement.exception;
 
 public class EmailUsedException extends RuntimeException {
 

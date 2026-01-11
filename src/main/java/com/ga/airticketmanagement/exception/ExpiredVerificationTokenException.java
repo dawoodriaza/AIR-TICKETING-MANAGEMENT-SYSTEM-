@@ -1,9 +1,7 @@
-package com.ga.airticketmanagement.exceptions;
+package com.ga.airticketmanagement.exception;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 @NoArgsConstructor
 @Getter
