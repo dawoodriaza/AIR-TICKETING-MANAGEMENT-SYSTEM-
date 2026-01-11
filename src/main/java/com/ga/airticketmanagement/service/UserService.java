@@ -1,10 +1,10 @@
 package com.ga.airticketmanagement.service;
 
 import com.ga.airticketmanagement.event.EmailVerificationRequestedEvent;
-import com.ga.airticketmanagement.exceptions.AccountNotVerifiedException;
-import com.ga.airticketmanagement.exceptions.EmailUsedException;
-import com.ga.airticketmanagement.exceptions.ExpiredVerificationTokenException;
-import com.ga.airticketmanagement.exceptions.InvalidCredentialsException;
+import com.ga.airticketmanagement.exception.AccountNotVerifiedException;
+import com.ga.airticketmanagement.exception.EmailUsedException;
+import com.ga.airticketmanagement.exception.ExpiredVerificationTokenException;
+import com.ga.airticketmanagement.exception.InvalidCredentialsException;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.dto.request.LoginRequest;
 import com.ga.airticketmanagement.dto.response.LoginResponse;
