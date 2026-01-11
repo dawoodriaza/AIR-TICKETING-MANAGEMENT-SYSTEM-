@@ -79,4 +79,12 @@ public class ApiExceptionHandler {
                 new ApiErrorResponse("INVALID_ARGUMENT_TYPE", message)
         );
     }
+
+    @ExceptionHandler(ConflictedOriginDestinationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConflictedOriginDestinationException(ConflictedOriginDestinationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(
+                "CONFLICTED_ORIGIN_DESTINATION",
+                e.getMessage()
+        ));
+    }
 }
