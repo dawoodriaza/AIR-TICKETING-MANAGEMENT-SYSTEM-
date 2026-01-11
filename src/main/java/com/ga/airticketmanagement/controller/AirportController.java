@@ -1,17 +1,19 @@
 package com.ga.airticketmanagement.controller;
 
-import com.ga.airticketmanagement.model.Airport;
-import com.ga.airticketmanagement.repository.AirportRepository;
+import com.ga.airticketmanagement.dto.request.AirportRequest;
+import com.ga.airticketmanagement.dto.response.ListResponse;
+import com.ga.airticketmanagement.dto.response.AirportResponse;
 import com.ga.airticketmanagement.service.AirportService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api")
 public class AirportController {
-
 
     private AirportService airportService;
 
@@ -20,35 +22,36 @@ public class AirportController {
         this.airportService = airportService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/airports")
-    public Airport createAirport(@RequestBody Airport airport){
+    public AirportResponse createAirport(@Valid @RequestBody AirportRequest airport){
 
         return airportService.createAirport(airport);
     }
 
     @GetMapping("/airports/{id}")
-    public Airport getAirport(@PathVariable Long id){
+    public AirportResponse getAirport(@PathVariable Long id){
 
         return airportService.getAirport(id);
     }
 
-
     @GetMapping("/airports")
-    public List<Airport> getAirports(){
+    public ListResponse<AirportResponse> getAirports(Pageable pageable){
 
-        return airportService.getAirports();
+        return airportService.getAirports(pageable);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/airports/{id}")
-    public Airport updateAirport(@PathVariable Long id, @RequestBody Airport airport){
+    public AirportResponse updateAirport(@PathVariable Long id,@Valid @RequestBody AirportRequest airport){
 
         return airportService.updateAirport(id, airport);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/airports/{id}")
-    public String deleteAirport(@PathVariable Long id){
-
-        return airportService.deleteAirport(id);
+    public void deleteAirport(@PathVariable Long id){
+        airportService.deleteAirport(id);
     }
-
 }
