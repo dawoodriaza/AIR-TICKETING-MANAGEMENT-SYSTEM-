@@ -1,11 +1,13 @@
-package com.ga.airticketmanagement.exceptions;
+package com.ga.airticketmanagement.exception;
 
 import com.ga.airticketmanagement.dto.response.ApiErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 
@@ -43,6 +45,38 @@ public class ApiExceptionHandler {
                 "VERIFICATION_TOKEN_EXPIRED",
                 "Request resend verification email.",
                 Map.of("resend_verification", baseUrl + "/auth/users/resend-verification"))
+        );
+    }
+
+    @ExceptionHandler(InformationFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleInformationFoundException(InformationFoundException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(
+                "INFORMATION_EXISTS",
+                e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(InformationNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleInformationNotFoundException(InformationNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiErrorResponse(
+                "NOT_FOUND",
+                e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+
+        String param = e.getName();
+        String value = e.getValue().toString();
+        String expectedType = e.getRequiredType() != null ?
+                e.getRequiredType().getSimpleName()
+                : "valid value";
+
+        String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",value, param, expectedType);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse("INVALID_ARGUMENT_TYPE", message)
         );
     }
 }
