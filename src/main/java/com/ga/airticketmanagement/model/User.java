@@ -1,4 +1,5 @@
 package com.ga.airticketmanagement.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -50,7 +51,16 @@ public class User {
     private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user", fetch =  FetchType.LAZY)
-    private List<Airport> airports;
+    @JsonIgnore
+    private List<Airport> createdAirports;
+
+    @OneToMany(mappedBy = "user", fetch =  FetchType.LAZY)
+    @JsonIgnore
+    private List<Flight> createdFlights;
+
+    @OneToMany(mappedBy = "user", fetch =  FetchType.LAZY)
+    @JsonIgnore
+    private List<Booking> bookings;
 
     @JsonIgnore
     public String getPassword() {

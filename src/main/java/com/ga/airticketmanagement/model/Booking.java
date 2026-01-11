@@ -1,11 +1,9 @@
 package com.ga.airticketmanagement.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
-
 
 @Entity
 @Table(name = "Booking")
@@ -25,10 +23,8 @@ public class Booking {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-
     @Column
     private String name;
-
 
     @Column
     private int numberOfPassengers;
@@ -37,12 +33,18 @@ public class Booking {
     @CreationTimestamp
     private LocalDateTime booking_date;
 
-
     @Column
     private float total_price;
 
-
     @Column
     private String status;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "flight_id")
+    private Flight flight;
 
 }

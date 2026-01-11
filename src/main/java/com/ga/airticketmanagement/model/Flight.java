@@ -40,7 +40,6 @@ public class Flight {
     @UpdateTimestamp
     private LocalDateTime updated_at;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "origin_airport_id")
     private Airport originAirport;
@@ -49,4 +48,7 @@ public class Flight {
     @JoinColumn(name = "destination_airport_id")
     private Airport destinationAirport;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
