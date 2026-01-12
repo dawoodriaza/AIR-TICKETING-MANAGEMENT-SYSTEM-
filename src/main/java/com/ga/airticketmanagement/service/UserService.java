@@ -160,13 +160,14 @@ public class UserService {
     }
 
     @Transactional
-    public void resetPasswordToken(PasswordResetTokenRequest request) {
+    public void resetPasswordByToken(PasswordResetTokenRequest request) {
+
+        UserToken userToken = userTokenService.validateToken(request.token(), TokenType.PASSWORD_RESET);
 
         if(!request.newPassword().equals(request.newPasswordConfirmation())){
             throw new ValidationException("Passwords do not match");
         }
 
-        UserToken userToken = userTokenService.validateToken(request.token(), TokenType.PASSWORD_RESET);
         userRepository.findUserByEmailAddress(userToken.getEmail()).ifPresent(user -> {
             user.setPassword(passwordEncoder.encode(request.newPassword()));
             userRepository.save(user);
