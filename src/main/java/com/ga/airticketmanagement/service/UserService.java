@@ -1,18 +1,18 @@
 package com.ga.airticketmanagement.service;
 
+import com.ga.airticketmanagement.dto.request.*;
+import com.ga.airticketmanagement.event.EmailPasswordResetEvent;
 import com.ga.airticketmanagement.event.EmailVerificationRequestedEvent;
-import com.ga.airticketmanagement.exception.AccountNotVerifiedException;
-import com.ga.airticketmanagement.exception.EmailUsedException;
-import com.ga.airticketmanagement.exception.ExpiredVerificationTokenException;
-import com.ga.airticketmanagement.exception.InvalidCredentialsException;
+import com.ga.airticketmanagement.exception.*;
 import com.ga.airticketmanagement.model.User;
-import com.ga.airticketmanagement.dto.request.LoginRequest;
 import com.ga.airticketmanagement.dto.response.LoginResponse;
 import com.ga.airticketmanagement.model.token.TokenType;
 import com.ga.airticketmanagement.model.token.UserToken;
 import com.ga.airticketmanagement.repository.UserRepository;
+import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.security.JWTUtils;
 import com.ga.airticketmanagement.security.MyUserDetails;
+import com.ga.airticketmanagement.util.TokenGenerator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -37,6 +39,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
     private MyUserDetails myUserDetails;
     private final UserTokenService userTokenService;
 
@@ -45,7 +48,7 @@ public class UserService {
                        @Lazy AuthenticationManager authenticationManager,
                        @Lazy MyUserDetails myUserDetails,
                        UserTokenService userTokenService,
-                       ApplicationEventPublisher applicationEventPublisher) {
+                       ApplicationEventPublisher applicationEventPublisher, AuthenticatedUserProvider authenticatedUserProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
@@ -53,6 +56,7 @@ public class UserService {
         this.myUserDetails = myUserDetails;
         this.userTokenService = userTokenService;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.authenticatedUserProvider = authenticatedUserProvider;
     }
 
     @Transactional
@@ -61,12 +65,14 @@ public class UserService {
         if (!userRepository.existsByEmailAddress(userObject.getEmailAddress())) {
             userObject.setPassword(passwordEncoder.encode(userObject.getPassword()));
             User newUser = userRepository.save(userObject);
+            String newToken = TokenGenerator.generateToken();
             UserToken userToken = userTokenService.createToken(
                     newUser,
+                    newToken,
                     TokenType.EMAIL_VERIFICATION,
                     Duration.ofHours(24)
             );
-            applicationEventPublisher.publishEvent(new EmailVerificationRequestedEvent(newUser, userToken.getToken()));
+            applicationEventPublisher.publishEvent(new EmailVerificationRequestedEvent(newUser, newToken));
             return newUser;
         } else {
             throw new EmailUsedException("User with email address already exists");
@@ -109,13 +115,11 @@ public class UserService {
         return ResponseEntity.ok(new LoginResponse(JWT));
     }
 
-
     public User findUserByEmailAddress(String email){
         return userRepository.findUserByEmailAddress(email).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
         );
     }
-
 
     @Transactional
     public void verifyUser(String token) {
@@ -132,14 +136,53 @@ public class UserService {
         userTokenService.markUsed(userToken);
     }
 
-    public void resendVerification(String email) {
-
-        userRepository.findUserByEmailAddress(email)
-                .filter(user -> !user.isEmailVerified())
+    @Transactional
+    public void resendVerification(EmailVerificationRequest request) {
+        userRepository.findUserByEmailAddress(request.email())
+                .filter(user -> !user.isEmailVerified() && userTokenService.isExpired(request.email(), TokenType.EMAIL_VERIFICATION))
                 .ifPresent(
-                        user ->  userTokenService.createToken(user, TokenType.EMAIL_VERIFICATION, Duration.ofHours(24))
+                        user ->  {
+                            String newToken = TokenGenerator.generateToken();
+                            userTokenService.createToken(user, newToken, TokenType.EMAIL_VERIFICATION, Duration.ofHours(24));
+                            applicationEventPublisher.publishEvent(new EmailVerificationRequestedEvent(user, newToken));
+                        }
                 );
+    }
 
+    @Transactional
+    public void requestResetPassword(EmailPasswordResetRequest request) {
+        userRepository.findUserByEmailAddress(request.email()).ifPresent( user -> {
+                    String newToken = TokenGenerator.generateToken();
+                    userTokenService.createToken(user, newToken, TokenType.PASSWORD_RESET, Duration.ofHours(24));
+                    applicationEventPublisher.publishEvent(new EmailPasswordResetEvent(user, newToken));
+                }
+        );
+    }
+
+    @Transactional
+    public void resetPasswordToken(PasswordResetTokenRequest request) {
+
+        if(!request.newPassword().equals(request.newPasswordConfirmation())){
+            throw new ValidationException("Passwords do not match");
+        }
+
+        UserToken userToken = userTokenService.validateToken(request.token(), TokenType.PASSWORD_RESET);
+        userRepository.findUserByEmailAddress(userToken.getEmail()).ifPresent(user -> {
+            user.setPassword(passwordEncoder.encode(request.newPassword()));
+            userRepository.save(user);
+            userTokenService.markUsed(userToken);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(PasswordResetRequest request) {
+        if(!request.newPassword().equals(request.newPasswordConfirmation())){
+            throw new ValidationException("Passwords do not match");
+        }
+
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 
 }
