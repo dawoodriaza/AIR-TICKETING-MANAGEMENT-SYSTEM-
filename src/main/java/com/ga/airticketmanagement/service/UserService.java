@@ -177,11 +177,21 @@ public class UserService {
 
     @Transactional
     public void resetPassword(PasswordResetRequest request) {
+
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+
         if(!request.newPassword().equals(request.newPasswordConfirmation())){
             throw new ValidationException("Passwords do not match");
         }
 
-        User user = authenticatedUserProvider.getAuthenticatedUser();
+        if(!passwordEncoder.matches(request.oldPassword(), user.getPassword())){
+            throw new ValidationException("Invalid old password");
+        }
+
+        if(request.oldPassword().equals(request.newPasswordConfirmation())){
+            throw new ValidationException("New password must not be the same as your old password");
+        }
+
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
