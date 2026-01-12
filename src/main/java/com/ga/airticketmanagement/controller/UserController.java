@@ -64,10 +64,10 @@ public class UserController {
         return new ResetPasswordByTokenResponse("Password reset successful.");
     }
 
-    @PostMapping("/reset-password")
+    @PatchMapping("/change-password")
     public ResetPasswordResponse resetPasword(@RequestBody PasswordResetRequest request) {
         userService.resetPassword(request);
-        return new ResetPasswordResponse("Password reset successful.");
+        return new ResetPasswordResponse("Password change successful.");
     }
 
 
