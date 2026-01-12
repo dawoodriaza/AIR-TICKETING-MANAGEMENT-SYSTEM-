@@ -87,4 +87,12 @@ public class ApiExceptionHandler {
                 e.getMessage()
         ));
     }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidationException(ValidationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiErrorResponse(
+                "INVALID_ARGUMENTS",
+                e.getMessage())
+        );
+    }
 }
