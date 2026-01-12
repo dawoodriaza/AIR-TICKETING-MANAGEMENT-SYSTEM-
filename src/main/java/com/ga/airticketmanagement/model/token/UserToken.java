@@ -1,5 +1,7 @@
 package com.ga.airticketmanagement.model.token;
 
+import com.ga.airticketmanagement.model.User;
+import com.ga.airticketmanagement.util.TokenGenerator;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,4 +43,9 @@ public class UserToken {
 
     @Column
     private LocalDateTime usedAt;
+
+    public void setToken(String token) {
+        this.token = TokenGenerator.hash(token);
+    }
+
 }
