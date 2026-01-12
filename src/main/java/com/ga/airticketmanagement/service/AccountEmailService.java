@@ -30,6 +30,16 @@ public class AccountEmailService {
         );
     }
 
+    public void sendResetPasswordEmail(User user, String token) {
+        System.out.println("Sending reset email...");
+        String body = buildEmail(baseUrl + "/auth/users/resetPassword?token=" + token, "email/reset");
+        emailService.sendHtmlEmail(
+                user.getEmailAddress(),
+                "Reset Password",
+                body
+        );
+    }
+
     private String buildEmail(String link, String templatePath) {
         Context context = new Context();
         context.setVariable("link", link);
