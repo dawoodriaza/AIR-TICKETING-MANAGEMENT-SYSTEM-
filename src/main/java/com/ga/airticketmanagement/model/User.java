@@ -42,7 +42,7 @@ public class User {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role= Role.CUSTOMER;
 
     @OneToOne(
         cascade = CascadeType.ALL, fetch = FetchType.LAZY
@@ -71,6 +71,6 @@ public class User {
     public void prePersist(){
         this.emailVerified = false;
         this.active = true;
-        this.role = Role.CUSTOMER;
+
     }
 }
