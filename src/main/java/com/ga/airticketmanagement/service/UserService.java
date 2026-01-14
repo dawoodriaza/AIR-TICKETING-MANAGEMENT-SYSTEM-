@@ -126,7 +126,7 @@ public class UserService {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new LoginResponse(JWT, user.getId(), user.getRole(), "Login successful"));git 
+                .body(new LoginResponse(JWT, user.getId(), user.getRole(), "Login successful"));
     }
 
     public User findUserByEmailAddress(String email){
