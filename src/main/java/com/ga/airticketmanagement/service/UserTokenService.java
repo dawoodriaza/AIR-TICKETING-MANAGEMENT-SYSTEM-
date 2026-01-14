@@ -1,20 +1,17 @@
 package com.ga.airticketmanagement.service;
 
 import com.ga.airticketmanagement.exception.ExpiredVerificationTokenException;
+import com.ga.airticketmanagement.exception.InformationNotFoundException;
+import com.ga.airticketmanagement.exception.ValidationException;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.model.token.TokenType;
 import com.ga.airticketmanagement.model.token.UserToken;
 import com.ga.airticketmanagement.repository.UserTokenRepository;
 import com.ga.airticketmanagement.util.TokenGenerator;
-import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -55,6 +52,10 @@ public class UserTokenService {
         UserToken userToken = userTokenRepository.findByTokenAndType(hashedToken, type)
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
 
+        if(userToken.getUsedAt() != null){
+            throw new ValidationException("Invalid Token");
+        }
+
         if(userToken.getExpiresAt().isBefore(LocalDateTime.now())){
             throw new ExpiredVerificationTokenException();
         }
@@ -64,7 +65,7 @@ public class UserTokenService {
 
     public boolean isExpired(String email, TokenType type) {
         UserToken userToken = userTokenRepository.findFirstByEmailAndTypeOrderByCreatedAtDesc(email, type)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No tokens found"));
+                .orElseThrow(() -> new InformationNotFoundException("Not Found"));
         return userToken.getExpiresAt().isBefore(LocalDateTime.now());
     }
 
@@ -88,7 +89,4 @@ public class UserTokenService {
 
         return link.toString();
     }
-
-
-
 }
