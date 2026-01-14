@@ -1,11 +1,13 @@
 package com.ga.airticketmanagement.controller;
 
 import com.ga.airticketmanagement.dto.request.*;
+import com.ga.airticketmanagement.dto.response.AuthenticatedUserResponse;
 import com.ga.airticketmanagement.dto.response.ForgotPasswordResponse;
 import com.ga.airticketmanagement.dto.response.ResetPasswordByTokenResponse;
 import com.ga.airticketmanagement.dto.response.ResetPasswordResponse;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletRequest response){
         System.out.println("Calling LoginUser from the controller ==>");
         return userService.loginUser(loginRequest);
 
@@ -68,6 +70,12 @@ public class UserController {
     public ResetPasswordResponse resetPasword(@RequestBody PasswordResetRequest request) {
         userService.resetPassword(request);
         return new ResetPasswordResponse("Password change successful.");
+    }
+
+    @GetMapping("/me")
+    public AuthenticatedUserResponse getCurrentUser() {
+
+        return userService.getCurrentUser();
     }
 
 

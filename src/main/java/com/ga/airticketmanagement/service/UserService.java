@@ -1,6 +1,7 @@
 package com.ga.airticketmanagement.service;
 
 import com.ga.airticketmanagement.dto.request.*;
+import com.ga.airticketmanagement.dto.response.AuthenticatedUserResponse;
 import com.ga.airticketmanagement.event.EmailPasswordResetEvent;
 import com.ga.airticketmanagement.event.EmailVerificationRequestedEvent;
 import com.ga.airticketmanagement.exception.*;
@@ -15,7 +16,9 @@ import com.ga.airticketmanagement.security.MyUserDetails;
 import com.ga.airticketmanagement.util.TokenGenerator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -112,12 +115,23 @@ public class UserService {
         }
 
         final String JWT = jwtUtils.generateJwtToken(myUserDetails);
-        return ResponseEntity.ok(new LoginResponse(JWT));
+
+        ResponseCookie cookie = ResponseCookie.from("access_token",  JWT)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(Duration.ofHours(24))
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new LoginResponse(JWT, user.getId(), user.getRole(), "Login successful"));
     }
 
     public User findUserByEmailAddress(String email){
         return userRepository.findUserByEmailAddress(email).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+                () -> new ValidationException("Incorrect email or password.")
         );
     }
 
@@ -194,6 +208,12 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+
+    public AuthenticatedUserResponse getCurrentUser() {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+
+        return new AuthenticatedUserResponse(user.getId(), user.getRole());
     }
 
 }
