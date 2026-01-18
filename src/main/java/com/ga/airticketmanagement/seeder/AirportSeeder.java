@@ -69,7 +69,6 @@ public class AirportSeeder {
         airport.setName(name);
         airport.setCountry(country);
         airport.setCode(code);
-//        airport.setDeleted(false);
         return airport;
     }
 }
