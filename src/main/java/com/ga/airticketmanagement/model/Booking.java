@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "Booking")
 @Getter
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
 public class Booking {
 
     @Id
@@ -38,6 +40,8 @@ public class Booking {
 
     @Column
     private String status;
+
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

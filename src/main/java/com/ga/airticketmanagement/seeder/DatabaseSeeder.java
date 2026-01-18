@@ -19,6 +19,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private UserSeeder userSeeder;
 
     @Autowired
+    private AirportSeeder airportSeeder;
+
+    @Autowired
     private FlightSeeder flightSeeder;
 
     @Autowired
@@ -38,8 +41,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         logger.info("========================================");
 
         try {
-            // Seed in order (users first, then flights, then bookings)
+
             userSeeder.seed();
+            airportSeeder.seed();
             flightSeeder.seed();
             bookingSeeder.seed();
 

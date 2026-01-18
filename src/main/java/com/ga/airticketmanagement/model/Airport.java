@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "airports")
+
 public class Airport {
 
     @Id
@@ -40,6 +42,8 @@ public class Airport {
     @UpdateTimestamp
     @Column
     private LocalDateTime updatedAt;
+
+
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "originAirport", orphanRemoval = true)
     @JsonIgnore

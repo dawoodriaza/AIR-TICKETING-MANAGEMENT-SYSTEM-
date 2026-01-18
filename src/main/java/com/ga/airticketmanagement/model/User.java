@@ -10,6 +10,8 @@ import org.hibernate.FetchMode;
 import org.hibernate.annotations.Fetch;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+
+
 import java.util.List;
 
 @Setter
@@ -19,6 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @ToString(exclude = {"password","userProfile"})
+
 public class User {
     @Id
     @Column
@@ -61,6 +64,8 @@ public class User {
     @OneToMany(mappedBy = "user", fetch =  FetchType.LAZY)
     @JsonIgnore
     private List<Booking> bookings;
+
+
 
     @JsonIgnore
     public String getPassword() {

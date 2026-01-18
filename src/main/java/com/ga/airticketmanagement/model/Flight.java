@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "flights")
+
 public class Flight {
 
     @Id
@@ -39,6 +41,8 @@ public class Flight {
     @Column
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "origin_airport_id")
