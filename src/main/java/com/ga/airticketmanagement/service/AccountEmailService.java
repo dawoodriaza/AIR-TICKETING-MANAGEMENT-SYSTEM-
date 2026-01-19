@@ -35,7 +35,7 @@ public class AccountEmailService {
 
     public void sendResetPasswordEmail(User user, String token) {
         log.info("Sending reset email...");
-        String body = buildEmail(baseUrl + "/auth/users/resetPassword?token=" + token, "email/reset");
+        String body = buildEmail(baseUrl + "/auth/users/reset-password?token=" + token, "email/reset");
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
                 "Reset Password",
