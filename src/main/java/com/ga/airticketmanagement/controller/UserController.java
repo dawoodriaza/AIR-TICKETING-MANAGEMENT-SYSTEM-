@@ -8,6 +8,7 @@ import com.ga.airticketmanagement.dto.response.ResetPasswordResponse;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/auth/users")
 public class UserController {
@@ -32,13 +34,13 @@ public class UserController {
 
     @PostMapping(path = "/register")
     public User createUser(@RequestBody User userObject){
-        System.out.println("Calling the createUser from the controller ==>");
+        log.debug("Calling createUser from the controller ==>");
         return userService.createUser(userObject);
     }
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletRequest response){
-        System.out.println("Calling LoginUser from the controller ==>");
+        log.debug("Calling LoginUser from the controller ==>");
         return userService.loginUser(loginRequest);
 
     }
