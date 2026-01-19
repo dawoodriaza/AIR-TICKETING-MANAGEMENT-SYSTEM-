@@ -22,8 +22,8 @@ import java.util.List;
 public class AirportService {
 
     private final AirportMapper airportMapper;
-    private AirportRepository airportRepository;
-    private AuthenticatedUserProvider authenticatedUserProvider;
+    private final AirportRepository airportRepository;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
     public AirportService(AirportMapper airportMapper, AirportRepository airportRepository,
                           AuthenticatedUserProvider authenticatedUserProvider) {
         this.airportMapper = airportMapper;
