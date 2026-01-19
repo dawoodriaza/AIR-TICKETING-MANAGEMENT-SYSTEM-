@@ -74,8 +74,6 @@ public class User {
 
     @PrePersist
     public void prePersist(){
-        this.emailVerified = false;
         this.active = true;
-
     }
 }
