@@ -5,6 +5,7 @@ import com.ga.airticketmanagement.dto.response.AuthenticatedUserResponse;
 import com.ga.airticketmanagement.event.EmailPasswordResetEvent;
 import com.ga.airticketmanagement.event.EmailVerificationRequestedEvent;
 import com.ga.airticketmanagement.exception.*;
+import com.ga.airticketmanagement.model.Role;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.dto.response.LoginResponse;
 import com.ga.airticketmanagement.model.token.TokenType;
@@ -71,9 +72,7 @@ public class UserService {
             throw new ValidationException("Email address is required");
         }
         if (!userRepository.existsByEmailAddress(userObject.getEmailAddress())) {
-            if (userObject.getUserProfile() != null) {
-                userObject.getUserProfile().setUser(userObject);
-            }
+            userObject.setRole(Role.CUSTOMER);
             userObject.setPassword(passwordEncoder.encode(userObject.getPassword()));
             User newUser = userRepository.saveAndFlush(userObject);
             String email = newUser.getEmailAddress();
@@ -231,6 +230,32 @@ public class UserService {
         User user = authenticatedUserProvider.getAuthenticatedUser();
 
         return new AuthenticatedUserResponse(user.getId(), user.getRole());
+    }
+
+    @Transactional
+    public User softDeleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InformationNotFoundException("User not found with id: " + userId));
+
+        user.setActive(false);
+        // Optionally set a deletedAt timestamp if you have that field
+        // user.setDeletedAt(LocalDateTime.now());
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Reactivate a soft-deleted user
+     */
+    @Transactional
+    public User reactivateUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InformationNotFoundException("User not found with id: " + userId));
+
+        user.setActive(true);
+        // user.setDeletedAt(null);
+
+        return userRepository.save(user);
     }
 
 }
