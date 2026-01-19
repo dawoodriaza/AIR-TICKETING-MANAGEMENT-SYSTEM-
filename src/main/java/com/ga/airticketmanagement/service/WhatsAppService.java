@@ -7,9 +7,11 @@ import com.ga.airticketmanagement.repository.WhatsAppRepo;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WhatsAppService {
@@ -27,18 +29,16 @@ public class WhatsAppService {
             Payment payment,
             String otp
     ) {
-        WhatsAppLog log = new WhatsAppLog();
-        log.setPhoneNumber(phone);
-        log.setMessage(message);
-        log.setType(type);
-        log.setBooking(booking);
-        log.setPayment(payment);
-        log.setOtpCode(otp);
+        WhatsAppLog wlog = new WhatsAppLog();
+        wlog.setPhoneNumber(phone);
+        wlog.setMessage(message);
+        wlog.setType(type);
+        wlog.setBooking(booking);
+        wlog.setPayment(payment);
+        wlog.setOtpCode(otp);
 
         try {
-            System.out.println("Sending WhatsApp to: " + phone);
-            System.out.println("Message: " + message);
-            System.out.println("From: " + from);
+            log.info("Sending WhatsApp to: {}\nMessage: {}\nFrom: {}", phone, message, from);
 
             Message.creator(
                     new PhoneNumber("whatsapp:" + phone),
@@ -46,15 +46,15 @@ public class WhatsAppService {
                     message
             ).create();
 
-            log.setStatus("SENT");
-            System.out.println("WhatsApp sent successfully");
+            wlog.setStatus("SENT");
+            log.info("WhatsApp sent successfully");
         } catch (Exception e) {
-            log.setStatus("FAILED");
-            log.setMessage(message + " | ERROR: " + e.getMessage());
-            System.err.println("WhatsApp failed: " + e.getMessage());
+            wlog.setStatus("FAILED");
+            wlog.setMessage(message + " | ERROR: " + e.getMessage());
+            log.error("WhatsApp failed: {}", e.getMessage());
             e.printStackTrace();
         }
 
-        return repo.save(log);
+        return repo.save(wlog);
     }
 }

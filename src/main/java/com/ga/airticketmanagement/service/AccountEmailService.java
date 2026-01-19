@@ -1,12 +1,14 @@
 package com.ga.airticketmanagement.service;
 
 import com.ga.airticketmanagement.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+@Slf4j
 @Service
 public class AccountEmailService {
 
@@ -21,23 +23,25 @@ public class AccountEmailService {
     }
 
     public void sendVerificationEmail(User user, String token) {
-        System.out.println("Sending verification email...");
+        log.info("Sending verification email...");
         String body = buildEmail(baseUrl + "/auth/users/verify?token=" + token, "email/verification");
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
                 "Verify Your Email",
                 body
         );
+        log.info("Verification Email Sent.");
     }
 
     public void sendResetPasswordEmail(User user, String token) {
-        System.out.println("Sending reset email...");
+        log.info("Sending reset email...");
         String body = buildEmail(baseUrl + "/auth/users/resetPassword?token=" + token, "email/reset");
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
                 "Reset Password",
                 body
         );
+        log.info("Reset Email Sent.");
     }
 
     private String buildEmail(String link, String templatePath) {

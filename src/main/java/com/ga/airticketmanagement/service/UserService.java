@@ -15,10 +15,10 @@ import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.security.JWTUtils;
 import com.ga.airticketmanagement.security.MyUserDetails;
 import com.ga.airticketmanagement.util.TokenGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,12 +29,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -65,9 +63,7 @@ public class UserService {
 
     @Transactional
     public User createUser(User userObject) {
-        System.out.println("Calling createUser from the Service ==>");
-        System.out.println("Email received: " + userObject.getEmailAddress());  // ADD THIS
-        System.out.println("User object: " + userObject);
+        log.debug("Calling createUser from the Service ==>");
         if (userObject.getEmailAddress() == null || userObject.getEmailAddress().isBlank()) {
             throw new ValidationException("Email address is required");
         }
