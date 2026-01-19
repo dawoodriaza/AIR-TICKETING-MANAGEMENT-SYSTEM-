@@ -11,16 +11,12 @@ import com.ga.airticketmanagement.exception.InformationNotFoundException;
 import com.ga.airticketmanagement.model.Airport;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.repository.AirportRepository;
-import com.ga.airticketmanagement.repository.UserRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AirportService {
