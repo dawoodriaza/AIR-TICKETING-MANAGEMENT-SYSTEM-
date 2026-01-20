@@ -36,8 +36,12 @@ public class BookingService {
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final FlightRepository flightRepository;
 
-    public List<Booking> getBookings() {
-        return bookingRepository.findAll();
+    public ListResponse<BookingResponseDTO> getBookings(Pageable pageable) {
+        Page<Booking> page = bookingRepository.findAll(pageable);
+        List<BookingResponseDTO> data = page.getContent().stream()
+                .map(mapper::toDTO).toList();
+        PageMeta meta = PageMetaFactory.from(page);
+        return new ListResponse<>(data,meta);
     }
 
     public ListResponse<BookingResponseDTO> searchBookings(
