@@ -8,6 +8,7 @@ import com.ga.airticketmanagement.dto.response.ResetPasswordResponse;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,6 +90,12 @@ public class UserController {
     public AuthenticatedUserResponse getCurrentUser() {
 
         return userService.getCurrentUser();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logoutUser(HttpServletResponse response) {
+        userService.logout(response);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}")

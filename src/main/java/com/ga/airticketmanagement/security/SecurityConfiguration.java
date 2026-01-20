@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                                 "/auth/users/verify",
                                 "/auth/users/resend-verification",
                                 "/auth/users/login",
+                                "/auth/users/logout",
                                 "/auth/users/register",
                                 "/auth/users/forgot-password",
                                 "/auth/users/reset-password/token"

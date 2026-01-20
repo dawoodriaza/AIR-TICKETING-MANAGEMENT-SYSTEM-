@@ -15,6 +15,7 @@ import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.security.JWTUtils;
 import com.ga.airticketmanagement.security.MyUserDetails;
 import com.ga.airticketmanagement.util.TokenGenerator;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
@@ -224,6 +225,17 @@ public class UserService {
         User user = authenticatedUserProvider.getAuthenticatedUser();
 
         return new AuthenticatedUserResponse(user.getId(), user.getRole());
+    }
+
+    public void logout(HttpServletResponse response) {
+        ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
     }
 
     @Transactional
