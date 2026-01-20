@@ -1,7 +1,10 @@
 package com.ga.airticketmanagement.service;
 
+import com.ga.airticketmanagement.dto.mapper.PageMetaFactory;
 import com.ga.airticketmanagement.dto.request.*;
 import com.ga.airticketmanagement.dto.response.AuthenticatedUserResponse;
+import com.ga.airticketmanagement.dto.response.ListResponse;
+import com.ga.airticketmanagement.dto.response.PageMeta;
 import com.ga.airticketmanagement.event.EmailPasswordResetEvent;
 import com.ga.airticketmanagement.event.EmailVerificationRequestedEvent;
 import com.ga.airticketmanagement.exception.*;
@@ -15,11 +18,15 @@ import com.ga.airticketmanagement.repository.UserRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.security.JWTUtils;
 import com.ga.airticketmanagement.security.MyUserDetails;
+import com.ga.airticketmanagement.specification.UserSpecification;
 import com.ga.airticketmanagement.util.TokenGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -281,6 +288,30 @@ public class UserService {
         // user.setDeletedAt(null);
 
         return userRepository.save(user);
+    }
+
+    public ListResponse<User> searchUsers(Long id, String email, String search, Pageable pageable) {
+        Specification<User> spec;
+        
+        boolean hasSpecificCriteria = id != null || 
+            (email != null && !email.trim().isEmpty());
+        
+        if (hasSpecificCriteria) {
+            spec = UserSpecification.withSearchCriteria(id, email);
+            if (search != null && !search.trim().isEmpty()) {
+                spec = spec.and(UserSpecification.withGeneralSearch(search));
+            }
+        } else if (search != null && !search.trim().isEmpty()) {
+            spec = UserSpecification.withGeneralSearch(search);
+        } else {
+            spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+        }
+        
+        Page<User> page = userRepository.findAll(spec, pageable);
+
+        PageMeta meta = PageMetaFactory.from(page);
+
+        return new ListResponse<>(page.getContent(), meta);
     }
 
 }

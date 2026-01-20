@@ -12,8 +12,10 @@ import com.ga.airticketmanagement.model.Airport;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.repository.AirportRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
+import com.ga.airticketmanagement.specification.AirportSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,6 +62,35 @@ public class AirportService {
     public ListResponse<AirportResponse> getAirports(Pageable pageable) {
 
         Page<Airport> page = airportRepository.findAll(pageable);
+
+        List<AirportResponse> data = page.getContent().stream()
+                .map(airportMapper::toResponse).toList();
+
+        PageMeta meta = PageMetaFactory.from(page);
+
+        return new ListResponse<>(data, meta);
+    }
+
+    public ListResponse<AirportResponse> searchAirports(Long id, String name, String country, String code, String search, Pageable pageable) {
+        Specification<Airport> spec;
+        
+        boolean hasSpecificCriteria = id != null || 
+            (name != null && !name.trim().isEmpty()) || 
+            (country != null && !country.trim().isEmpty()) || 
+            (code != null && !code.trim().isEmpty());
+        
+        if (hasSpecificCriteria) {
+            spec = AirportSpecification.withSearchCriteria(id, name, country, code);
+            if (search != null && !search.trim().isEmpty()) {
+                spec = spec.and(AirportSpecification.withGeneralSearch(search));
+            }
+        } else if (search != null && !search.trim().isEmpty()) {
+            spec = AirportSpecification.withGeneralSearch(search);
+        } else {
+            spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+        }
+        
+        Page<Airport> page = airportRepository.findAll(spec, pageable);
 
         List<AirportResponse> data = page.getContent().stream()
                 .map(airportMapper::toResponse).toList();

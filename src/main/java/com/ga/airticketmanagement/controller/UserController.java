@@ -3,6 +3,7 @@ package com.ga.airticketmanagement.controller;
 import com.ga.airticketmanagement.dto.request.*;
 import com.ga.airticketmanagement.dto.response.AuthenticatedUserResponse;
 import com.ga.airticketmanagement.dto.response.ForgotPasswordResponse;
+import com.ga.airticketmanagement.dto.response.ListResponse;
 import com.ga.airticketmanagement.dto.response.ResetPasswordByTokenResponse;
 import com.ga.airticketmanagement.dto.response.ResetPasswordResponse;
 import com.ga.airticketmanagement.model.User;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -128,6 +130,16 @@ public class UserController {
         response.put("active", reactivatedUser.isActive());
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ListResponse<User>> searchUsers(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+        return ResponseEntity.ok(userService.searchUsers(id, email, search, pageable));
     }
 
 
