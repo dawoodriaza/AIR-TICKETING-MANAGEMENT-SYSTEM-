@@ -22,7 +22,24 @@ public class FlightController {
     }
 
     @GetMapping("/flights")
-    public ListResponse<FlightResponse> getFlights(Pageable pageable) {
+    public ListResponse<FlightResponse> getFlights(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String flightNo,
+            @RequestParam(required = false) Long originAirportId,
+            @RequestParam(required = false) String originAirportName,
+            @RequestParam(required = false) Long destinationAirportId,
+            @RequestParam(required = false) String destinationAirportName,
+            @RequestParam(required = false) java.math.BigDecimal price,
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+
+        if (id != null || (flightNo != null && !flightNo.trim().isEmpty()) ||
+            originAirportId != null || (originAirportName != null && !originAirportName.trim().isEmpty()) ||
+            destinationAirportId != null || (destinationAirportName != null && !destinationAirportName.trim().isEmpty()) ||
+            price != null || (search != null && !search.trim().isEmpty())) {
+            return flightService.searchFlights(id, flightNo, originAirportId, originAirportName,
+                    destinationAirportId, destinationAirportName, price, search, pageable);
+        }
 
         return flightService.getFlights(pageable);
     }

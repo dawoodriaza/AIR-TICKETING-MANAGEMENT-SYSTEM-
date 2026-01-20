@@ -36,8 +36,21 @@ public class AirportController {
     }
 
     @GetMapping("/airports")
-    public ListResponse<AirportResponse> getAirports(Pageable pageable){
+    public ListResponse<AirportResponse> getAirports(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String search,
+            Pageable pageable){
 
+        if (id != null || (name != null && !name.trim().isEmpty()) || 
+            (country != null && !country.trim().isEmpty()) || 
+            (code != null && !code.trim().isEmpty()) ||
+            (search != null && !search.trim().isEmpty())) {
+            return airportService.searchAirports(id, name, country, code, search, pageable);
+        }
+        
         return airportService.getAirports(pageable);
     }
 

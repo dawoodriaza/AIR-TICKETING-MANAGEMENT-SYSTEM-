@@ -15,10 +15,13 @@ import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.repository.AirportRepository;
 import com.ga.airticketmanagement.repository.FlightRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
+import com.ga.airticketmanagement.specification.FlightSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -150,6 +153,49 @@ public class FlightService {
 
         return new ListResponse<>(data, meta);
 
+    }
+
+    public ListResponse<FlightResponse> searchFlights(
+            Long id,
+            String flightNo,
+            Long originAirportId,
+            String originAirportName,
+            Long destinationAirportId,
+            String destinationAirportName,
+            BigDecimal price,
+            String search,
+            Pageable pageable
+    ) {
+        Specification<Flight> spec;
+        
+        boolean hasSpecificCriteria = id != null || 
+            (flightNo != null && !flightNo.trim().isEmpty()) ||
+            originAirportId != null || 
+            (originAirportName != null && !originAirportName.trim().isEmpty()) ||
+            destinationAirportId != null || 
+            (destinationAirportName != null && !destinationAirportName.trim().isEmpty()) ||
+            price != null;
+        
+        if (hasSpecificCriteria) {
+            spec = FlightSpecification.withSearchCriteria(
+                    id, flightNo, originAirportId, originAirportName,
+                    destinationAirportId, destinationAirportName, price
+            );
+            if (search != null && !search.trim().isEmpty()) {
+                spec = spec.and(FlightSpecification.withGeneralSearch(search));
+            }
+        } else if (search != null && !search.trim().isEmpty()) {
+            spec = FlightSpecification.withGeneralSearch(search);
+        } else {
+            spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+        }
+        
+        Page<Flight> page = flightRepository.findAll(spec, pageable);
+
+        List<FlightResponse> data = page.stream().map(flightMapper::toResponse).toList();
+        PageMeta meta = PageMetaFactory.from(page);
+
+        return new ListResponse<>(data, meta);
     }
 
     public ListResponse<FlightResponse> getAirportFlights(Long airportId, Pageable pageable) {
