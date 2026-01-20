@@ -56,7 +56,8 @@ public class SecurityConfiguration {
                                 "/auth/users/logout",
                                 "/auth/users/register",
                                 "/auth/users/forgot-password",
-                                "/auth/users/reset-password/token"
+                                "/auth/users/reset-password/token",
+                                "/api/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
