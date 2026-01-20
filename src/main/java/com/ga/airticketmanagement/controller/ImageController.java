@@ -34,10 +34,7 @@ public class ImageController {
                     .body("Please select a file to upload");
         }
 
-        // Get content type to validate file is an image
         String contentType = file.getContentType();
-
-
         if (contentType == null || !contentType.startsWith("image/")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Only image files are allowed");
@@ -69,21 +66,34 @@ public class ImageController {
 
 
     @GetMapping("/{fileName}")
+    public ResponseEntity<?> getImage(@PathVariable String fileName) {
+        try {
+            byte[] imageBytes = imageService.getImageFile(fileName);
 
-    public ResponseEntity<?> getImageInfo(@PathVariable String fileName) {
+            if (imageBytes == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Image not found with fileName: " + fileName);
+            }
 
+            ImageEntity image = imageService.getImageByFileName(fileName);
+            if (image == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Image metadata not found for fileName: " + fileName);
+            }
 
-        ImageEntity image = imageService.getImageByFileName(fileName);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(image.getFileType()));
+            headers.setContentDispositionFormData("inline", image.getOriginalFileName());
+            headers.setCacheControl("public, max-age=3600");
 
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(imageBytes);
 
-        if (image == null) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Image not found with fileName: " + fileName);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve image: " + e.getMessage());
         }
-
-
-        return ResponseEntity.ok(image);
     }
 
 

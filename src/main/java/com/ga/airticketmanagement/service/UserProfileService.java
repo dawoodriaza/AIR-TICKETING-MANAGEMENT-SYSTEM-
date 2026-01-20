@@ -7,14 +7,19 @@ import com.ga.airticketmanagement.dto.response.ListResponse;
 import com.ga.airticketmanagement.dto.response.PageMeta;
 import com.ga.airticketmanagement.dto.response.UserProfileResponse;
 import com.ga.airticketmanagement.exception.InformationNotFoundException;
+import com.ga.airticketmanagement.model.ImageEntity;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.model.UserProfile;
+import com.ga.airticketmanagement.repository.ImageRepository;
 import com.ga.airticketmanagement.repository.UserProfileRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -23,11 +28,17 @@ public class UserProfileService {
     private final UserProfileMapper userProfileMapper;
     private final UserProfileRepository userProfileRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final ImageService imageService;
+    private final ImageRepository imageRepository;
+    
     public UserProfileService(UserProfileMapper userProfileMapper, UserProfileRepository userProfileRepository,
-                              AuthenticatedUserProvider authenticatedUserProvider) {
+                              AuthenticatedUserProvider authenticatedUserProvider, ImageService imageService,
+                              ImageRepository imageRepository) {
         this.userProfileMapper = userProfileMapper;
         this.userProfileRepository = userProfileRepository;
         this.authenticatedUserProvider = authenticatedUserProvider;
+        this.imageService = imageService;
+        this.imageRepository = imageRepository;
     }
 
     public UserProfileResponse createUserProfile(UserProfileRequest userProfileObject){
@@ -84,5 +95,55 @@ public class UserProfileService {
         );
 
         userProfileRepository.delete(userProfile);
+    }
+
+    @Transactional
+    public UserProfileResponse updateMyUserProfile(UserProfileRequest userProfileRequest, MultipartFile profileImage) throws IOException {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+        
+        // Get or create user profile
+        UserProfile userProfile = user.getUserProfile();
+        if (userProfile == null) {
+            userProfile = new UserProfile();
+            userProfile.setUser(user);
+            user.setUserProfile(userProfile);
+        }
+        
+        // Update basic profile fields
+        if (userProfileRequest.getFirstName() != null && !userProfileRequest.getFirstName().isBlank()) {
+            userProfile.setFirstName(userProfileRequest.getFirstName());
+        }
+        if (userProfileRequest.getLastName() != null && !userProfileRequest.getLastName().isBlank()) {
+            userProfile.setLastName(userProfileRequest.getLastName());
+        }
+        
+        // Handle profile image upload
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // Validate that it's an image
+            String contentType = profileImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Only image files are allowed");
+            }
+            
+            // Delete old profile image if exists
+            if (userProfile.getProfileImg() != null && !userProfile.getProfileImg().isBlank()) {
+                ImageEntity oldImage = imageRepository.findByFileName(userProfile.getProfileImg()).orElse(null);
+                if (oldImage != null && oldImage.getUserId().equals(user.getId())) {
+                    imageService.deleteImage(oldImage.getId());
+                }
+            }
+            
+            // Save new image
+            ImageEntity savedImage = imageService.saveImage(profileImage, user.getId());
+            userProfile.setProfileImg(savedImage.getFileName());
+        } else if (userProfileRequest.getProfileImg() != null) {
+            // If profileImg is provided in request but no file, update the reference
+            userProfile.setProfileImg(userProfileRequest.getProfileImg());
+        }
+        
+        // Save updated profile
+        UserProfile updatedUserProfile = userProfileRepository.save(userProfile);
+        
+        return userProfileMapper.toResponse(updatedUserProfile);
     }
 }
