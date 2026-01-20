@@ -21,7 +21,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    public ResponseEntity<?> getAllBookings(
+    public ListResponse<BookingResponseDTO> getAllBookings(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) Long flightId,
             @RequestParam(required = false) String passengerName,
@@ -33,14 +33,14 @@ public class BookingController {
             (passengerName != null && !passengerName.trim().isEmpty()) || 
             userId != null ||
             (search != null && !search.trim().isEmpty())) {
-            return ResponseEntity.ok(bookingService.searchBookings(id, flightId, passengerName, userId, search, pageable));
+            return bookingService.searchBookings(id, flightId, passengerName, userId, search, pageable);
         }
         
         if (pageable != null && (pageable.getPageNumber() > 0 || pageable.getPageSize() > 0 || pageable.getSort().isSorted())) {
-            return ResponseEntity.ok(bookingService.searchBookings(null, null, null, null, null, pageable));
+            return bookingService.searchBookings(null, null, null, null, null, pageable);
         }
         
-        return ResponseEntity.ok(bookingService.getBookings());
+        return bookingService.getBookings(pageable);
     }
 
     @PostMapping
