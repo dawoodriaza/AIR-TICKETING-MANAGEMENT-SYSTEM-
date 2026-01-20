@@ -9,5 +9,4 @@ public class AirticketmanagementApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AirticketmanagementApplication.class, args);
 	}
-
 }

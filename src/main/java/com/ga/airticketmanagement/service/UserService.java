@@ -70,12 +70,11 @@ public class UserService {
         if (!userRepository.existsByEmailAddress(userObject.getEmailAddress())) {
             userObject.setRole(Role.CUSTOMER);
             userObject.setPassword(passwordEncoder.encode(userObject.getPassword()));
-            User newUser = userRepository.saveAndFlush(userObject);
-            String email = newUser.getEmailAddress();
-
+            userObject.setRole(Role.CUSTOMER);
+            User newUser = userRepository.save(userObject);
             String newToken = TokenGenerator.generateToken();
 
-            UserToken userToken = userTokenService.createToken(
+            userTokenService.createToken(
                     newUser,
                     newToken,
                     TokenType.EMAIL_VERIFICATION,
@@ -149,7 +148,6 @@ public class UserService {
 
     @Transactional
     public void verifyUser(String token) {
-
         UserToken userToken = userTokenService.validateToken(token, TokenType.EMAIL_VERIFICATION);
         userRepository.findUserByEmailAddress(userToken.getEmail()).ifPresent(
                 user -> {

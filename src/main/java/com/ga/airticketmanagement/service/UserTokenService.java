@@ -1,8 +1,9 @@
 package com.ga.airticketmanagement.service;
 
+import com.ga.airticketmanagement.exception.AlreadyVerifiedTokenException;
 import com.ga.airticketmanagement.exception.ExpiredVerificationTokenException;
 import com.ga.airticketmanagement.exception.InformationNotFoundException;
-import com.ga.airticketmanagement.exception.ValidationException;
+import com.ga.airticketmanagement.exception.InvalidVerificationTokenException;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.model.token.TokenType;
 import com.ga.airticketmanagement.model.token.UserToken;
@@ -50,10 +51,10 @@ public class UserTokenService {
 
         String hashedToken = TokenGenerator.hash(token);
         UserToken userToken = userTokenRepository.findByTokenAndType(hashedToken, type)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new InvalidVerificationTokenException("Invalid token"));
 
         if(userToken.getUsedAt() != null){
-            throw new ValidationException("Invalid Token");
+            throw new AlreadyVerifiedTokenException("Token is already used.");
         }
 
         if(userToken.getExpiresAt().isBefore(LocalDateTime.now())){

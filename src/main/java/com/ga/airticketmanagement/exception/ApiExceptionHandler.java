@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -41,11 +42,8 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ExpiredVerificationTokenException.class)
     public ResponseEntity<ApiErrorResponse> handleExpiredVerificationTokenException(ExpiredVerificationTokenException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiErrorResponse(
-                "VERIFICATION_TOKEN_EXPIRED",
-                "Request resend verification email.",
-                Map.of("resend_verification", baseUrl + "/auth/users/resend-verification"))
-        );
+        URI redirectUri = URI.create(baseUrl + "/resend-verification?error=expired");
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 
     @ExceptionHandler(InformationFoundException.class)
@@ -94,5 +92,17 @@ public class ApiExceptionHandler {
                 "INVALID_ARGUMENTS",
                 e.getMessage())
         );
+    }
+
+    @ExceptionHandler(InvalidVerificationTokenException.class)
+    public ResponseEntity<?> handleInvalidVerificationTokenException(InvalidVerificationTokenException e) {
+        URI redirectUri = URI.create(baseUrl + "/resend-verification?error=invalid");
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
+    }
+
+    @ExceptionHandler(AlreadyVerifiedTokenException.class)
+    public ResponseEntity<?> handleInvalidVerificationTokenException(AlreadyVerifiedTokenException e) {
+        URI redirectUri = URI.create(baseUrl + "/login?error=used");
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 }

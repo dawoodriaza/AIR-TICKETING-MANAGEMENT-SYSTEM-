@@ -12,8 +12,12 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Service
 public class AccountEmailService {
 
-    @Value("${app.frontend.base-url}")
+    @Value("${app.backend.base-url}")
     private String baseUrl;
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
+
     private final EmailService emailService;
 
     @Autowired
@@ -35,7 +39,7 @@ public class AccountEmailService {
 
     public void sendResetPasswordEmail(User user, String token) {
         log.info("Sending reset email...");
-        String body = buildEmail(baseUrl + "/auth/users/resetPassword?token=" + token, "email/reset");
+        String body = buildEmail(frontendBaseUrl + "/reset-password?token=" + token, "email/reset");
         emailService.sendHtmlEmail(
                 user.getEmailAddress(),
                 "Reset Password",

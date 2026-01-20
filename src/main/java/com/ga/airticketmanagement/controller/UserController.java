@@ -10,6 +10,8 @@ import com.ga.airticketmanagement.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +28,10 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/auth/users")
 public class UserController {
+
     private UserService userService;
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -49,7 +55,8 @@ public class UserController {
     public ResponseEntity<?> verifyUser(@RequestParam String token) {
 
         userService.verifyUser(token);
-        return ResponseEntity.ok("Account verified");
+        URI redirectUri = URI.create(frontendBaseUrl + "/login?verified=true");
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 
     @PostMapping("/resend-verification")
