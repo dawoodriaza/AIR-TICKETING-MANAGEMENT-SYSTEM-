@@ -8,6 +8,7 @@ import com.ga.airticketmanagement.exception.*;
 import com.ga.airticketmanagement.model.Role;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.dto.response.LoginResponse;
+import com.ga.airticketmanagement.model.UserProfile;
 import com.ga.airticketmanagement.model.token.TokenType;
 import com.ga.airticketmanagement.model.token.UserToken;
 import com.ga.airticketmanagement.repository.UserRepository;
@@ -72,6 +73,7 @@ public class UserService {
             userObject.setRole(Role.CUSTOMER);
             userObject.setPassword(passwordEncoder.encode(userObject.getPassword()));
             userObject.setRole(Role.CUSTOMER);
+            userObject.setUserProfile(new UserProfile());
             User newUser = userRepository.save(userObject);
             String newToken = TokenGenerator.generateToken();
 
@@ -223,8 +225,17 @@ public class UserService {
 
     public AuthenticatedUserResponse getCurrentUser() {
         User user = authenticatedUserProvider.getAuthenticatedUser();
+        UserProfile profile = user.getUserProfile();
 
-        return new AuthenticatedUserResponse(user.getId(), user.getRole());
+        return new AuthenticatedUserResponse(
+                user.getId(),
+                user.getRole(),
+                user.isEmailVerified(),
+                user.getEmailAddress(),
+                profile.getFirstName(),
+                profile.getLastName(),
+                profile.getProfileImg()
+            );
     }
 
     public void logout(HttpServletResponse response) {
