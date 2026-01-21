@@ -12,7 +12,6 @@ public class BookingSpecification {
     public static Specification<Booking> withSearchCriteria(
             Long id,
             Long flightId,
-            String passengerName,
             Long userId
     ) {
         return (root, query, criteriaBuilder) -> {
@@ -26,13 +25,6 @@ public class BookingSpecification {
                 predicates.add(criteriaBuilder.equal(
                     root.get("flight").get("id"),
                     flightId
-                ));
-            }
-
-            if (passengerName != null && !passengerName.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("passengerName")),
-                    "%" + passengerName.toLowerCase() + "%"
                 ));
             }
 
@@ -53,19 +45,12 @@ public class BookingSpecification {
                 return criteriaBuilder.conjunction();
             }
 
-            String searchLower = search.toLowerCase().trim();
             List<Predicate> searchPredicates = new ArrayList<>();
-
-            searchPredicates.add(criteriaBuilder.like(
-                criteriaBuilder.lower(root.get("passengerName")),
-                "%" + searchLower + "%"
-            ));
 
             try {
                 Long idValue = Long.parseLong(search);
                 searchPredicates.add(criteriaBuilder.equal(root.get("id"), idValue));
             } catch (NumberFormatException e) {
-                // Ignore
             }
 
             try {
@@ -75,7 +60,6 @@ public class BookingSpecification {
                     flightId
                 ));
             } catch (NumberFormatException e) {
-                // Ignore
             }
 
             try {
@@ -85,7 +69,10 @@ public class BookingSpecification {
                     userId
                 ));
             } catch (NumberFormatException e) {
-                // Ignore
+            }
+
+            if (searchPredicates.isEmpty()) {
+                return criteriaBuilder.conjunction();
             }
 
             return criteriaBuilder.or(searchPredicates.toArray(new Predicate[0]));

@@ -1,17 +1,13 @@
 package com.ga.airticketmanagement.controller;
 
-import com.ga.airticketmanagement.dto.request.BookingCreateDTO;
-import com.ga.airticketmanagement.dto.response.BookingResponseDTO;
+import com.ga.airticketmanagement.dto.request.BookingRequest;
+import com.ga.airticketmanagement.dto.response.BookingResponse;
 import com.ga.airticketmanagement.dto.response.ListResponse;
-import com.ga.airticketmanagement.dto.response.OTPVerifyDTO;
-import com.ga.airticketmanagement.model.Booking;
 import com.ga.airticketmanagement.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -21,60 +17,43 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    public ListResponse<BookingResponseDTO> getAllBookings(
+    public ListResponse<BookingResponse> getAllBookings(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) Long flightId,
-            @RequestParam(required = false) String passengerName,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String search,
             Pageable pageable) {
         
         if (id != null || flightId != null || 
-            (passengerName != null && !passengerName.trim().isEmpty()) || 
             userId != null ||
             (search != null && !search.trim().isEmpty())) {
-            return bookingService.searchBookings(id, flightId, passengerName, userId, search, pageable);
-        }
-        
-        if (pageable != null && (pageable.getPageNumber() > 0 || pageable.getPageSize() > 0 || pageable.getSort().isSorted())) {
-            return bookingService.searchBookings(null, null, null, null, null, pageable);
+            return bookingService.searchBookings(id, flightId, userId, search, pageable);
         }
         
         return bookingService.getBookings(pageable);
     }
 
-    @PostMapping
-    public ResponseEntity<BookingResponseDTO> create(@RequestBody BookingCreateDTO dto) {
-        BookingResponseDTO response = bookingService.create(dto);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/booking/{bookingId}/verify")
-    public ResponseEntity<String> verifyOtp(
-            @PathVariable Long bookingId,
-            @RequestBody OTPVerifyDTO dto
-    ) {
-        dto.setBookingId(bookingId);
-        String result = bookingService.verifyOtp(dto);
-        return ResponseEntity.ok(result);
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingService.getBookingById(id));
+    public BookingResponse getBookingById(@PathVariable Long id) {
+        return bookingService.getBookingById(id);
+    }
+
+    @PostMapping
+    public BookingResponse create(@RequestBody BookingRequest dto) {
+        return bookingService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateBooking(
+    public BookingResponse updateBooking(
             @PathVariable Long id,
-            @RequestBody Booking booking
+            @RequestBody BookingRequest bookingRequest
     ) {
-        return ResponseEntity.ok(bookingService.updateBookingById(id, booking));
+        return bookingService.updateBookingById(id, bookingRequest);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBooking(@PathVariable Long id) {
+    public void deleteBooking(@PathVariable Long id) {
         bookingService.deleteBookingById(id);
-        return ResponseEntity.ok("Booking with ID " + id + " deleted successfully.");
     }
 }

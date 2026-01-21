@@ -1,40 +1,27 @@
 package com.ga.airticketmanagement.dto.mapper;
 
-import com.ga.airticketmanagement.dto.request.BookingCreateDTO;
-import com.ga.airticketmanagement.dto.response.BookingResponseDTO;
+import com.ga.airticketmanagement.dto.request.BookingRequest;
+import com.ga.airticketmanagement.dto.response.BookingResponse;
 import com.ga.airticketmanagement.model.Booking;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
-@Component
-public class BookingMapper {
+@Mapper(componentModel = "spring")
+public interface BookingMapper {
 
-    public Booking toEntity(BookingCreateDTO dto) {
-        Booking b = new Booking();
-        b.setPassengerName(dto.getPassengerName());
-        b.setPhoneNumber(dto.getPhoneNumber());
-        b.setFromCity(dto.getFromCity());
-        b.setToCity(dto.getToCity());
-        b.setTravelDate(dto.getTravelDate());
-        b.setNumberOfSeats(dto.getNumberOfSeats());
-        b.setPricePerSeat(dto.getPricePerSeat());
-        b.setSeatNo(dto.getSeatNo());
-        b.setFlightNo(dto.getFlightNo());
-        return b;
-    }
+    @Mappings({
+            @Mapping(source = "user.id", target = "userId"),
+            @Mapping(source = "flight.id", target = "flightId")
+    })
+    BookingResponse toResponse(Booking booking);
 
-    public BookingResponseDTO toDTO(Booking b) {
-        return BookingResponseDTO.builder()
-                .id(b.getId())
-                .passengerName(b.getPassengerName())
-                .phoneNumber(b.getPhoneNumber())
-                .fromCity(b.getFromCity())
-                .toCity(b.getToCity())
-                .numberOfSeats(b.getNumberOfSeats())
-                .pricePerSeat(b.getPricePerSeat())
-                .totalPrice(b.getTotalPrice())
-                .status(b.getStatus())
-                .otpVerified(b.getOtpVerified())
-                .flightNo(b.getFlightNo())
-                .build();
-    }
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "bookedAt", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true),
+            @Mapping(target = "user", ignore = true),
+            @Mapping(target = "flight", ignore = true)
+    })
+    Booking toEntity(BookingRequest bookingRequest);
 }

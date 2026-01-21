@@ -25,9 +25,9 @@ public class PaymentService {
         Booking b = bookingRepository.findById(dto.getBookingId())
                 .orElseThrow(() -> new InformationNotFoundException("Booking not found"));
 
-        if (!b.getOtpVerified()) {
-            throw new InformationNotFoundException("OTP not verified. Please verify OTP first.");
-        }
+//        if (!b.getOtpVerified()) {
+//            throw new InformationNotFoundException("OTP not verified. Please verify OTP first.");
+//        }
 
         Payment p = new Payment();
         p.setAmount(dto.getAmount());
@@ -36,23 +36,23 @@ public class PaymentService {
         p.setStatus("SUCCESS");
         p.setTransactionRef("TXN" + System.currentTimeMillis());
 
-        b.setStatus("PAID");
+//        b.setStatus("PAID");
         bookingRepository.save(b);
         paymentRepo.save(p);
 
         String pdfLink = "http://localhost:8080/ticket/pdf/" + b.getId();
 
-        whatsAppService.send(
-                b.getPhoneNumber(),
-                "Payment Successful!\n" +
-                        "Amount: $" + p.getAmount() + "\n" +
-                        "Reference: " + p.getTransactionRef() + "\n" +
-                        "Download Ticket:\n" + pdfLink,
-                "PAYMENT",
-                b,
-                p,
-                null
-        );
+//        whatsAppService.send(
+//                b.getPhoneNumber(),
+//                "Payment Successful!\n" +
+//                        "Amount: $" + p.getAmount() + "\n" +
+//                        "Reference: " + p.getTransactionRef() + "\n" +
+//                        "Download Ticket:\n" + pdfLink,
+//                "PAYMENT",
+//                b,
+//                p,
+//                null
+//        );
 
         return p;
     }

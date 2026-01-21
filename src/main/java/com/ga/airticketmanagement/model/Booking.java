@@ -1,66 +1,38 @@
 package com.ga.airticketmanagement.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import java.time.LocalDate;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "booking")
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "booking")
 public class Booking {
 
     @Id
-    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at", updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Column(name = "passenger_name")
-    private String passengerName;
-
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "from_city")
-    private String fromCity;
-
-    @Column(name = "to_city")
-    private String toCity;
-
-    @Column(name = "travel_date")
-    private LocalDate travelDate;
-
-    @Column(name = "number_of_seats")
-    private Integer numberOfSeats;
-
-    @Column(name = "price_per_seat")
-    private Double pricePerSeat;
-
-    @Column(name = "total_price")
-    private Double totalPrice;
-
-    @Column(name = "seat_no")
-    private String seatNo;
-
-    @Column(name = "flight_no")
-    private String flightNo;
-
-    @Column(name = "otp")
-    private String otp;
-
-    @Column(name = "otp_verified")
-    private Boolean otpVerified = false;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private BookingStatus status;
+
+    @CreationTimestamp
+    @Column(name = "booked_at")
+    private LocalDateTime bookedAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -69,14 +41,4 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flight_id")
     private Flight flight;
-
-    @PrePersist
-    public void prePersist() {
-        if (pricePerSeat != null && numberOfSeats != null) {
-            this.totalPrice = pricePerSeat * numberOfSeats;
-        }
-        if (otpVerified == null) {
-            this.otpVerified = false;
-        }
-    }
 }
