@@ -17,11 +17,14 @@ import com.ga.airticketmanagement.repository.FlightRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.specification.FlightSpecification;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -244,5 +247,46 @@ public class FlightService {
         );
 
         return flight;
+    }
+
+    public ListResponse<FlightResponse> browseFlights(
+            Long originAirportId,
+            Long destinationAirportId,
+            LocalDateTime departureTimeFrom,
+            LocalDateTime departureTimeTo,
+            LocalDateTime arrivalTimeFrom,
+            LocalDateTime arrivalTimeTo,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable
+    ) {
+        // Apply default sorting by departureTime ascending if no sort is specified
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Direction.ASC, "departureTime")
+            );
+        }
+
+        Specification<Flight> spec = FlightSpecification.withFutureFlightsFilter();
+
+        Specification<Flight> browseSpec = FlightSpecification.withBrowseFilters(
+                originAirportId,
+                destinationAirportId,
+                departureTimeFrom,
+                departureTimeTo,
+                arrivalTimeFrom,
+                arrivalTimeTo,
+                minPrice,
+                maxPrice
+        );
+
+        spec = spec.and(browseSpec);
+
+        Page<Flight> page = flightRepository.findAll(spec, pageable);
+        List<FlightResponse> data = page.stream().map(flightMapper::toResponse).toList();
+        PageMeta meta = PageMetaFactory.from(page);
+        return new ListResponse<>(data, meta);
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,6 +129,86 @@ public class FlightSpecification {
             }
 
             return criteriaBuilder.or(searchPredicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Flight> withBrowseFilters(
+            Long originAirportId,
+            Long destinationAirportId,
+            LocalDateTime departureTimeFrom,
+            LocalDateTime departureTimeTo,
+            LocalDateTime arrivalTimeFrom,
+            LocalDateTime arrivalTimeTo,
+            BigDecimal minPrice,
+            BigDecimal maxPrice
+    ) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (originAirportId != null) {
+                predicates.add(criteriaBuilder.equal(
+                    root.get("originAirport").get("id"),
+                    originAirportId
+                ));
+            }
+
+            if (destinationAirportId != null) {
+                predicates.add(criteriaBuilder.equal(
+                    root.get("destinationAirport").get("id"),
+                    destinationAirportId
+                ));
+            }
+
+            if (departureTimeFrom != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
+                    root.get("departureTime"),
+                    departureTimeFrom
+                ));
+            }
+
+            if (departureTimeTo != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                    root.get("departureTime"),
+                    departureTimeTo
+                ));
+            }
+
+            if (arrivalTimeFrom != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
+                    root.get("arrivalTime"),
+                    arrivalTimeFrom
+                ));
+            }
+
+            if (arrivalTimeTo != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                    root.get("arrivalTime"),
+                    arrivalTimeTo
+                ));
+            }
+
+            if (minPrice != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
+                    root.get("price"),
+                    minPrice
+                ));
+            }
+
+            if (maxPrice != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                    root.get("price"),
+                    maxPrice
+                ));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Flight> withFutureFlightsFilter() {
+        return (root, query, criteriaBuilder) -> {
+            LocalDateTime currentTime = LocalDateTime.now();
+            return criteriaBuilder.greaterThan(root.get("departureTime"), currentTime);
         };
     }
 }
