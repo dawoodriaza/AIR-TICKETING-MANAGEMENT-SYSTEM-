@@ -22,6 +22,7 @@ public class AdminService {
         Long totalBookings = bookingRepository.count();
         Long totalFlights = flightRepository.count();
         Long totalUsers = userRepository.count();
+        // Revenue is sum of flight prices from confirmed bookings
         BigDecimal totalRevenueBigDecimal = bookingRepository.sumFlightPriceByStatus(BookingStatus.CONFIRMED);
         Double totalRevenue = totalRevenueBigDecimal != null ? totalRevenueBigDecimal.doubleValue() : 0.0;
 
