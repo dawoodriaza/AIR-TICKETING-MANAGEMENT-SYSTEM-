@@ -1,6 +1,7 @@
 package com.ga.airticketmanagement.specification;
 
 import com.ga.airticketmanagement.model.Booking;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -8,6 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingSpecification {
+
+    public static Specification<Booking> withFlightJoin() {
+        return (root, query, criteriaBuilder) -> {
+            if (root.getJoins().stream().noneMatch(join -> "flight".equals(join.getAttribute().getName()))) {
+                root.join("flight", JoinType.LEFT);
+            }
+            return criteriaBuilder.conjunction();
+        };
+    }
 
     public static Specification<Booking> withSearchCriteria(
             Long id,

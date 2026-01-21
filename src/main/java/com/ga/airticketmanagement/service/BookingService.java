@@ -34,7 +34,11 @@ public class BookingService {
     private final FlightRepository flightRepository;
 
     public ListResponse<BookingResponse> getBookings(Pageable pageable) {
-        Page<Booking> page = bookingRepository.findAll(pageable);
+        Specification<Booking> spec = needsFlightJoin(pageable) 
+            ? BookingSpecification.withFlightJoin() 
+            : (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+        
+        Page<Booking> page = bookingRepository.findAll(spec, pageable);
         List<BookingResponse> data = page.getContent().stream()
                 .map(mapper::toResponse).toList();
         PageMeta meta = PageMetaFactory.from(page);
@@ -67,6 +71,10 @@ public class BookingService {
             spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
         }
         
+        if (needsFlightJoin(pageable)) {
+            spec = spec.and(BookingSpecification.withFlightJoin());
+        }
+        
         Page<Booking> page = bookingRepository.findAll(spec, pageable);
 
         List<BookingResponse> data = page.getContent().stream()
@@ -74,6 +82,15 @@ public class BookingService {
         PageMeta meta = PageMetaFactory.from(page);
 
         return new ListResponse<>(data, meta);
+    }
+
+    private boolean needsFlightJoin(Pageable pageable) {
+        if (pageable.getSort().isEmpty()) {
+            return false;
+        }
+        
+        return pageable.getSort().stream()
+            .anyMatch(order -> order.getProperty().startsWith("flight."));
     }
 
     public BookingResponse getBookingById(Long bookingId) {

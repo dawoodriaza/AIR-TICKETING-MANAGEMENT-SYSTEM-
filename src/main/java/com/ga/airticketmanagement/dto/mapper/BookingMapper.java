@@ -7,12 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = FlightMapper.class)
 public interface BookingMapper {
 
     @Mappings({
-            @Mapping(source = "user.id", target = "userId"),
-            @Mapping(source = "flight.id", target = "flightId")
+            @Mapping(source = "user.id", target = "userId")
     })
     BookingResponse toResponse(Booking booking);
 

@@ -8,7 +8,7 @@ public record BookingResponse(
         Long id,
         Long userId,
         BookingStatus status,
-        Long flightId,
+        FlightResponse flight,
         LocalDateTime bookedAt,
         LocalDateTime updatedAt
 ) {}
