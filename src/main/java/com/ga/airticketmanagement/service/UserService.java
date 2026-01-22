@@ -214,14 +214,14 @@ public class UserService {
 
         User user = authenticatedUserProvider.getAuthenticatedUser();
 
-        if(!request.newPassword().equals(request.newPasswordConfirmation())){
-            throw new ValidationException("Passwords do not match");
-        }
-
         if(!passwordEncoder.matches(request.oldPassword(), user.getPassword())){
             throw new ValidationException("Invalid old password");
         }
 
+        if(!request.newPassword().equals(request.newPasswordConfirmation())){
+            throw new ValidationException("Passwords do not match");
+        }
+        
         if(request.oldPassword().equals(request.newPasswordConfirmation())){
             throw new ValidationException("New password must not be the same as your old password");
         }
