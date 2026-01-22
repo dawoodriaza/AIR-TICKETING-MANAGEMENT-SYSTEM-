@@ -1,7 +1,10 @@
 package com.ga.airticketmanagement.seeder;
 
 import com.ga.airticketmanagement.model.Airport;
+import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.repository.AirportRepository;
+import com.ga.airticketmanagement.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Component
 public class AirportSeeder {
 
@@ -17,6 +22,9 @@ public class AirportSeeder {
 
     @Autowired
     private AirportRepository airportRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public void seed() {
         logger.info("🛫 Seeding airports...");
@@ -65,10 +73,15 @@ public class AirportSeeder {
     }
 
     private Airport createAirport(String name, String country, String code) {
+        Optional<User> user = userRepository.findById(1L);
+        user.ifPresent(u -> {
+            log.info(u.getEmailAddress());
+        });
         Airport airport = new Airport();
         airport.setName(name);
         airport.setCountry(country);
         airport.setCode(code);
+        user.ifPresent(airport::setUser);
         return airport;
     }
 }

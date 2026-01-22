@@ -3,6 +3,7 @@ package com.ga.airticketmanagement.seeder;
 import com.ga.airticketmanagement.model.Role;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.model.UserProfile;
+import com.ga.airticketmanagement.repository.UserProfileRepository;
 import com.ga.airticketmanagement.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,8 @@ public class UserSeeder {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
     public void seed() {
         logger.info("👤 Seeding users...");
@@ -123,7 +126,7 @@ public class UserSeeder {
         profile.setFirstName(firstName);
         profile.setLastName(lastName);
         profile.setProfileImg(profileImg);
-
+        profile.setUser(user);
         user.setUserProfile(profile);
 
         return user;

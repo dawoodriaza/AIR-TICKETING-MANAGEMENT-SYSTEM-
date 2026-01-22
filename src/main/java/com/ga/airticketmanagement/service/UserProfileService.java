@@ -7,10 +7,10 @@ import com.ga.airticketmanagement.dto.response.ListResponse;
 import com.ga.airticketmanagement.dto.response.PageMeta;
 import com.ga.airticketmanagement.dto.response.UserProfileResponse;
 import com.ga.airticketmanagement.exception.InformationNotFoundException;
-import com.ga.airticketmanagement.model.ImageEntity;
+import com.ga.airticketmanagement.model.Asset;
 import com.ga.airticketmanagement.model.User;
 import com.ga.airticketmanagement.model.UserProfile;
-import com.ga.airticketmanagement.repository.ImageRepository;
+import com.ga.airticketmanagement.repository.AssetRepository;
 import com.ga.airticketmanagement.repository.UserProfileRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import org.springframework.data.domain.Page;
@@ -28,17 +28,17 @@ public class UserProfileService {
     private final UserProfileMapper userProfileMapper;
     private final UserProfileRepository userProfileRepository;
     private final AuthenticatedUserProvider authenticatedUserProvider;
-    private final ImageService imageService;
-    private final ImageRepository imageRepository;
+    private final AssetService assetService;
+    private final AssetRepository assetRepository;
     
     public UserProfileService(UserProfileMapper userProfileMapper, UserProfileRepository userProfileRepository,
-                              AuthenticatedUserProvider authenticatedUserProvider, ImageService imageService,
-                              ImageRepository imageRepository) {
+                              AuthenticatedUserProvider authenticatedUserProvider, AssetService assetService,
+                              AssetRepository assetRepository) {
         this.userProfileMapper = userProfileMapper;
         this.userProfileRepository = userProfileRepository;
         this.authenticatedUserProvider = authenticatedUserProvider;
-        this.imageService = imageService;
-        this.imageRepository = imageRepository;
+        this.assetService = assetService;
+        this.assetRepository = assetRepository;
     }
 
     public UserProfileResponse createUserProfile(UserProfileRequest userProfileObject){
@@ -127,14 +127,14 @@ public class UserProfileService {
             
             // Delete old profile image if exists
             if (userProfile.getProfileImg() != null && !userProfile.getProfileImg().isBlank()) {
-                ImageEntity oldImage = imageRepository.findByFileName(userProfile.getProfileImg()).orElse(null);
-                if (oldImage != null && oldImage.getUserId().equals(user.getId())) {
-                    imageService.deleteImage(oldImage.getId());
+                Asset oldImage = assetRepository.findByFileName(userProfile.getProfileImg()).orElse(null);
+                if (oldImage != null && oldImage.getUser().getId().equals(user.getId())) {
+                    assetService.deleteImage(oldImage.getId());
                 }
             }
             
             // Save new image
-            ImageEntity savedImage = imageService.saveImage(profileImage, user.getId());
+            Asset savedImage = assetService.saveImage(profileImage, user.getId());
             userProfile.setProfileImg(savedImage.getFileName());
         } else if (userProfileRequest.getProfileImg() != null) {
             // If profileImg is provided in request but no file, update the reference

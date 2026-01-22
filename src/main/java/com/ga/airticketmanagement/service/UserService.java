@@ -14,6 +14,7 @@ import com.ga.airticketmanagement.dto.response.LoginResponse;
 import com.ga.airticketmanagement.model.UserProfile;
 import com.ga.airticketmanagement.model.token.TokenType;
 import com.ga.airticketmanagement.model.token.UserToken;
+import com.ga.airticketmanagement.repository.UserProfileRepository;
 import com.ga.airticketmanagement.repository.UserRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.security.JWTUtils;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -51,6 +53,7 @@ public class UserService {
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final UserProfileRepository userProfileRepository;
     private MyUserDetails myUserDetails;
     private final UserTokenService userTokenService;
 
@@ -59,7 +62,7 @@ public class UserService {
                        @Lazy AuthenticationManager authenticationManager,
                        @Lazy MyUserDetails myUserDetails,
                        UserTokenService userTokenService,
-                       ApplicationEventPublisher applicationEventPublisher, AuthenticatedUserProvider authenticatedUserProvider) {
+                       ApplicationEventPublisher applicationEventPublisher, AuthenticatedUserProvider authenticatedUserProvider, UserProfileRepository userProfileRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
@@ -68,6 +71,7 @@ public class UserService {
         this.userTokenService = userTokenService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.authenticatedUserProvider = authenticatedUserProvider;
+        this.userProfileRepository = userProfileRepository;
     }
 
     @Transactional
@@ -77,11 +81,14 @@ public class UserService {
             throw new ValidationException("Email address is required");
         }
         if (!userRepository.existsByEmailAddress(userObject.getEmailAddress())) {
+            UserProfile userProfile = new UserProfile();
+            userProfile.setUser(userObject);
+            userObject.setUserProfile(userProfile);
             userObject.setRole(Role.CUSTOMER);
             userObject.setPassword(passwordEncoder.encode(userObject.getPassword()));
             userObject.setRole(Role.CUSTOMER);
-            userObject.setUserProfile(new UserProfile());
             User newUser = userRepository.save(userObject);
+
             String newToken = TokenGenerator.generateToken();
 
             userTokenService.createToken(
