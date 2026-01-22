@@ -1,3 +1,5 @@
 package com.ga.airticketmanagement.dto.request;
 
-public record EmailVerificationRequest(String email) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record EmailVerificationRequest(@NotBlank String email) {}

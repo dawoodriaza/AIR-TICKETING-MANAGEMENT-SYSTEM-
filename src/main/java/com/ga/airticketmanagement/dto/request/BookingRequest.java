@@ -1,6 +1,7 @@
 package com.ga.airticketmanagement.dto.request;
 
 import com.ga.airticketmanagement.model.BookingStatus;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,6 @@ public class BookingRequest {
 
     @NotNull
     private Long flightId;
-
+    @NotBlank
     private BookingStatus status;
 }
