@@ -16,6 +16,7 @@ import com.ga.airticketmanagement.repository.FlightRepository;
 import com.ga.airticketmanagement.security.AuthenticatedUserProvider;
 import com.ga.airticketmanagement.specification.BookingSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingService {
@@ -116,6 +118,7 @@ public class BookingService {
 
     @Transactional
     public BookingResponse updateBookingById(Long id, BookingRequest bookingRequest) {
+        log.debug(bookingRequest.getStatus().toString());
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() ->
                         new InformationNotFoundException("Booking with Id " + id + " not found"));

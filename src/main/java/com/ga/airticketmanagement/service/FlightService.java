@@ -8,6 +8,7 @@ import com.ga.airticketmanagement.dto.response.FlightResponse;
 import com.ga.airticketmanagement.dto.response.ListResponse;
 import com.ga.airticketmanagement.dto.response.PageMeta;
 import com.ga.airticketmanagement.exception.ConflictedOriginDestinationException;
+import com.ga.airticketmanagement.exception.FlightDeletionException;
 import com.ga.airticketmanagement.exception.InformationNotFoundException;
 import com.ga.airticketmanagement.model.Airport;
 import com.ga.airticketmanagement.model.Flight;
@@ -127,6 +128,10 @@ public class FlightService {
 
         Flight flight = flightRepository.findById(flightId).orElseThrow(
                 () -> new InformationNotFoundException("Flight not found"));
+
+        if(!flight.getBookings().isEmpty()){
+            throw new FlightDeletionException("Cannot delete a flight with existing bookings. Resolve existing bookings before deletion.");
+        };
 
         flightRepository.delete(flight);
     }

@@ -6,6 +6,7 @@ import com.ga.airticketmanagement.dto.request.AirportRequest;
 import com.ga.airticketmanagement.dto.response.ListResponse;
 import com.ga.airticketmanagement.dto.response.PageMeta;
 import com.ga.airticketmanagement.dto.response.AirportResponse;
+import com.ga.airticketmanagement.exception.AirportDeletionException;
 import com.ga.airticketmanagement.exception.InformationFoundException;
 import com.ga.airticketmanagement.exception.InformationNotFoundException;
 import com.ga.airticketmanagement.model.Airport;
@@ -48,7 +49,7 @@ public class AirportService {
                 });
 
         Airport exists = airportRepository.findFirstByCode(airportObject.getCode());
-        if (exists.getCode().equalsIgnoreCase(airportObject.getCode())) {
+        if (Optional.ofNullable(exists).isPresent() && exists.getCode().equalsIgnoreCase(airportObject.getCode())) {
             throw new InformationFoundException("Airport with code " + airportObject.getCode() + " already exists");
         }
 
@@ -135,6 +136,11 @@ public class AirportService {
         Airport airport = airportRepository.findById(id).orElseThrow(
                 () -> new InformationNotFoundException("Airport " + id + " does not exist")
         );
+
+        if(!airport.getDestinationFlights().isEmpty() ||
+                !airport.getOriginFlights().isEmpty()) {
+            throw new AirportDeletionException("Cannot delete an airport with existing flights.");
+        }
 
         airportRepository.delete(airport);
     }

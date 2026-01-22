@@ -105,4 +105,20 @@ public class ApiExceptionHandler {
         URI redirectUri = URI.create(baseUrl + "/login?error=used");
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
+
+    @ExceptionHandler(FlightDeletionException.class)
+    public ResponseEntity<ApiErrorResponse> handleFlightDeletionException(FlightDeletionException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(
+                "FLIGHT_DELETION_EXISTING_BOOKINGS",
+                e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(AirportDeletionException.class)
+    public ResponseEntity<ApiErrorResponse> handleAirportDeletionException(AirportDeletionException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(
+                "AIRPORT_DELETION_EXISTING_FLIGHTS",
+                e.getMessage()
+        ));
+    }
 }
