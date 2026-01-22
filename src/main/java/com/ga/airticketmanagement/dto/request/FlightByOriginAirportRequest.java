@@ -1,5 +1,6 @@
 package com.ga.airticketmanagement.dto.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,6 @@ public class FlightByOriginAirportRequest {
     @NotBlank
     private LocalDateTime arrivalTime;
 
-    @NotBlank
+    @NotBlank @Min(0)
     private BigDecimal price;
 }

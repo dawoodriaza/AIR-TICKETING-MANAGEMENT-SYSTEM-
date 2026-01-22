@@ -1,3 +1,5 @@
 package com.ga.airticketmanagement.dto.request;
 
-public record EmailPasswordResetRequest (String email) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record EmailPasswordResetRequest (@NotBlank String email) {}
