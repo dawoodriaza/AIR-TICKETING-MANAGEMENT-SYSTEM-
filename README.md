@@ -223,6 +223,8 @@ The final ERD is based on the following domain and data-integrity assumptions:
 
 ## Future Work & Improvements
 
+- Dockerize Project.
+- JUnit testing.
 - Implement jobs queue with retries for email sending jobs using RabbitMQ and Redis.
 - Payment Processing Mock.
 - Analytics.
@@ -282,8 +284,8 @@ The following resources were referenced during the design and implementation of 
   https://blog.jetbrains.com/idea/2024/11/how-to-use-flyway-for-database-migrations-in-spring-boot-applications/
 
 ### API Documentation 
-- Configure JWT Authentication for OpenAPI - Baeldung
-https://www.baeldung.com/openapi-jwt-authentication
+- Configure JWT Authentication for OpenAPI - Baeldung   
+  https://www.baeldung.com/openapi-jwt-authentication
 
 ## License
 
