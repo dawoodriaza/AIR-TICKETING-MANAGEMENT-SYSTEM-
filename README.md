@@ -18,16 +18,18 @@ An MVP REST API for managing air ticket bookings, built with Spring Boot. This s
 - **Lombok** - Java annotation processor
 - **Spring Mail** - Email service integration
 - **Thymeleaf** - Template engine for email templates
-- ~~**Twilio SDK** - SMS and WhatsApp messaging integration~~
 - **SpringDoc OpenAPI** - API documentation (Swagger)
 - **Java 17** - Programming language
+- ~~**Twilio SDK** - SMS and WhatsApp messaging integration~~
 
 ### Development Tools
-- **Intellij** - Java IDE
-- **Postman** - API testing and documentation
-- **Mailpit** - Email testing tool
-- **Trello** - Project management and task tracking
-- **draw.io** - System architecture and diagramming
+- **[Intellij Idea](https://www.jetbrains.com/idea/)** - Java IDE
+- **[Postman](https://www.postman.com/)** - API testing and documentation
+- **[Docker](https://www.docker.com/)** - Running Mailpit container
+- **[Mailpit](https://mailpit.axllent.org/)** - Email testing tool
+- **[MJML](https://mjml.io/)** - Generating email compatible Template
+- **[Trello](https://trello.com/)** - Project management and task tracking
+- **[Draw.io](https://www.drawio.com/)** - System architecture and diagramming
 
 ## Prerequisites
 
@@ -37,6 +39,7 @@ Before you begin, ensure you have the following installed:
 - **Maven 3.6+** (or use the included Maven wrapper)
 - **PostgreSQL** (latest stable version)
 - **Git** for version control
+- **Mailpit** for testing email sending
 
 ## Installation
 
@@ -67,8 +70,8 @@ Update the following in `src/main/resources/application.properties` or create `a
 
 - JWT secret key
 - Email server configuration (for email verification and password reset)
-  ~~- Twilio credentials (for SMS/WhatsApp notifications)~~
 - File upload directory path
+- ~~Twilio credentials (for SMS/WhatsApp notifications)~~
 
 ### 4. Build and Run
 
@@ -82,6 +85,33 @@ Once the application is running, access the Swagger UI at:
 ```
 http://localhost:8080/swagger-ui.html
 ```
+
+### 6. Start Mailpit
+
+> [!NOTE]
+> 
+> - This project will use mailpit through a docker container.
+> - For installing mailpit and running it directly on your machine please refer to [Mailpit Docs](https://mailpit.axllent.org/docs/install/).
+
+Run Mailpit Docker Container
+```bash
+docker run -d \
+--restart unless-stopped \
+--name=mailpit \
+-p 8025:8025 \
+-p 1025:1025 \
+axllent/mailpit
+```
+Set `application-dev.properties` for Mailpit
+```
+spring.mail.host=localhost
+spring.mail.port=1025
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.maiil.smtp.starttls.enable=false
+```
+Go to `localhost:8025` in your browser to view sent emails.
 
 ## API Documentation
 
@@ -170,10 +200,21 @@ http://localhost:8080/swagger-ui.html
 ## Entity Relationship Diagram
 
 ### Initial ERD
-[![old erd](/diagrams/erd/flight_booking_erd_old.drawio.png)]
+![old erd](/diagrams/erd/flight_booking_erd_old.drawio.png)
 
 ### Final ERD
-[![final erd](/diagrams/erd/flight_booking_erd_final.drawio.png)]
+![final erd](/diagrams/erd/flight_booking_erd_final.drawio.png)
+
+### Design Assumptions & Constraints
+
+The final ERD is based on the following domain and data-integrity assumptions:
+
+- A user may upload multiple assets. Currently, assets are used for profile images but the model is designed to support future features requiring user uploads. Deleting a user will cascade to their assets.
+- A user will always have an associated user profile created at the time of user registration. Deleting a user will cascade to their user profile.
+- A user may create multiple bookings. Deleting a user will **not** cascade to their bookings in order to preserve booking history.
+- A flight may have multiple bookings. Deleting a flight is restricted if bookings exist.
+- An airport may be the origin of multiple flights. Deleting an airport is restricted if it is referenced as a flight origin.
+- An airport may be the destination of multiple flights. Deleting an airport is restricted if it is referenced as a flight destination.
 
 ## Postman Export
 
@@ -205,6 +246,8 @@ The following resources were referenced during the design and implementation of 
   https://www.baeldung.com/rest-api-pagination-in-spring
 - Spring Data Pagination – Petrikainulainen  
   https://www.petrikainulainen.net/programming/spring-framework/spring-data-jpa-tutorial-part-seven-pagination/
+- REST Query Language with Spring Data JPA Specifications - Baeldung    
+  https://www.baeldung.com/rest-api-search-language-spring-data-specifications
 
 ### Validation
 - Jakarta Bean Validation Guide – Medium  
@@ -237,6 +280,10 @@ The following resources were referenced during the design and implementation of 
 ### Database Migrations
 - Flyway Migrations in Spring Boot – JetBrains  
   https://blog.jetbrains.com/idea/2024/11/how-to-use-flyway-for-database-migrations-in-spring-boot-applications/
+
+### API Documentation 
+- Configure JWT Authentication for OpenAPI - Baeldung
+https://www.baeldung.com/openapi-jwt-authentication
 
 ## License
 
