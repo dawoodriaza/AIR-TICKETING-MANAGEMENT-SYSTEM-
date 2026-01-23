@@ -294,16 +294,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public ListResponse<User> searchUsers(Long id, String email, String search, Pageable pageable) {
+    public ListResponse<User> searchUsers(Long id, String email, String search, Boolean active, Boolean emailVerified, String name, Pageable pageable) {
         Specification<User> spec;
         
-        boolean hasSpecificCriteria = id != null || 
-            (email != null && !email.trim().isEmpty());
+        boolean hasSpecificCriteria = id != null || active != null ||
+                emailVerified != null || (email != null && !email.trim().isEmpty());
         
         if (hasSpecificCriteria) {
-            spec = UserSpecification.withSearchCriteria(id, email);
+            spec = UserSpecification.withSearchCriteria(id, email, active, emailVerified);
             if (search != null && !search.trim().isEmpty()) {
-                spec = spec.and(UserSpecification.withGeneralSearch(search));
+                spec = spec.and(UserSpecification.withSearchCriteria(id, email, active, emailVerified));
             }
         } else if (search != null && !search.trim().isEmpty()) {
             spec = UserSpecification.withGeneralSearch(search);

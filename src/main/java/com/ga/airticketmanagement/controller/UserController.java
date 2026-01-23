@@ -138,8 +138,11 @@ public class UserController {
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) Boolean emailVerified,
+            @RequestParam(required = false) String name,
             Pageable pageable) {
-        return ResponseEntity.ok(userService.searchUsers(id, email, search, pageable));
+        return ResponseEntity.ok(userService.searchUsers(id, email, search, active, emailVerified, name, pageable));
     }
 
 
