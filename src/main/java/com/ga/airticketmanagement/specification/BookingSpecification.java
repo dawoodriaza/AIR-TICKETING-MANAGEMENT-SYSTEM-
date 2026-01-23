@@ -65,47 +65,36 @@ public class BookingSpecification {
             }
 
             String searchLower = search.toLowerCase().trim();
-            List<Predicate> searchPredicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             try {
-                Long idValue = Long.parseLong(search);
-                searchPredicates.add(criteriaBuilder.equal(root.get("id"), idValue));
-            } catch (NumberFormatException e) {
+                Long value = Long.parseLong(search);
+
+                predicates.add(criteriaBuilder.equal(root.get("id"), value));
+                predicates.add(criteriaBuilder.equal(root.get("flight").get("id"), value));
+                predicates.add(criteriaBuilder.equal(root.get("user").get("id"), value));
+
+            } catch (NumberFormatException ignored) {
+                // ignore
             }
 
-            try {
-                Long flightId = Long.parseLong(search);
-                searchPredicates.add(criteriaBuilder.equal(
-                    root.get("flight").get("id"),
-                    flightId
-                ));
-            } catch (NumberFormatException e) {
-            }
+            predicates.add(criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("user").get("emailAddress")),
+                    "%" + searchLower + "%"
+            ));
 
-            try {
-                Long userId = Long.parseLong(search);
-                searchPredicates.add(criteriaBuilder.equal(
-                    root.get("user").get("id"),
-                    userId
-                ));
-            } catch (NumberFormatException e) {
-            }
+            predicates.add(criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("flight").get("originAirport").get("code")),
+                    "%" + searchLower + "%"
+            ));
 
-            try {
+            predicates.add(criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("flight").get("destinationAirport").get("code")),
+                    "%" + searchLower + "%"
+            ));
 
-                searchPredicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(
-                        root.get("user").get("emailAddress")),
-                        "%" + searchLower + "%"
-                ));
-            } catch (NumberFormatException e) {
-            }
-
-            if (searchPredicates.isEmpty()) {
-                return criteriaBuilder.conjunction();
-            }
-
-            return criteriaBuilder.or(searchPredicates.toArray(new Predicate[0]));
+            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
         };
     }
+
 }
