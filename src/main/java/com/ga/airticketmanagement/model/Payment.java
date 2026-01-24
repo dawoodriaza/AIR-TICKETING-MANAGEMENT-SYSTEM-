@@ -27,9 +27,6 @@ public class Payment {
     @Column(unique = true)
     private String transactionRef;
 
-    @Column
-    private String method;
-
     @CreationTimestamp
     @Column(name = "paid_at", updatable = false)
     private LocalDateTime paidAt;
@@ -41,10 +38,4 @@ public class Payment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private SmsLog smsLog;
-
-    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private WhatsAppLog whatsAppLog;
 }
