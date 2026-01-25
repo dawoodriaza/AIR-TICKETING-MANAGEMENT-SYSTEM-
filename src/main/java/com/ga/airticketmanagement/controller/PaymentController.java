@@ -20,6 +20,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse createPayment(@Valid @RequestBody PaymentRequest request) {
@@ -48,6 +49,8 @@ public class PaymentController {
         return paymentService.getPaymentsByUserId(userId, pageable);
     }
 
+
+
     @GetMapping("/bookings/{bookingId}")
     public ListResponse<PaymentResponse> getPaymentsByBookingId(
             @PathVariable Long bookingId,
@@ -64,6 +67,8 @@ public class PaymentController {
         log.debug("GET /api/payments/status/{}", status);
         return paymentService.getPaymentsByStatus(status, pageable);
     }
+
+
 
     @GetMapping("/{id}")
     public PaymentResponse getPaymentById(@PathVariable Long id) {

@@ -188,11 +188,11 @@ public class PaymentService {
 
     @Transactional
     public void deletePayment(Long id) {
-        log.debug("Deleting payment ID: {}", id);
+        log.debug("Deleting payment id: {}", id);
 
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new InformationNotFoundException(
-                        "Payment with ID " + id + " not found"));
+                        "Payment with id " + id + " not found"));
 
         paymentRepository.delete(payment);
         log.info("Payment deleted successfully: {}", id);
