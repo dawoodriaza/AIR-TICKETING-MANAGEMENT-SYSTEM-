@@ -83,7 +83,7 @@ The API will be available at `http://localhost:8080` unless port was changed.
 
 Once the application is running, access the Swagger UI at:
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ### 6. Start Mailpit
@@ -218,8 +218,7 @@ The final ERD is based on the following domain and data-integrity assumptions:
 
 ## Postman Export
 
-> [!NOTE]
-> Will update with updated postman export once ready, for now refer to `/swagger-ui/index.html`
+[Postman exported collection](/postman/Flight%20Booking%20System%20(final).postman_collection.json)
 
 ## Future Work & Improvements
 
